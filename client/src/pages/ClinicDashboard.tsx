@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, TrendingUp, Eye, CheckCircle, XCircle, Clock, Edit, TrashIcon } from "lucide-react";
+import { Calendar, Users, TrendingUp, Eye, CheckCircle, XCircle, Clock, Edit } from "lucide-react";
 import { useState } from "react";
 
 interface Appointment {
@@ -64,10 +64,6 @@ const getStatusColor = (status: string) => {
     default:
       return "bg-gray-100 text-gray-700";
   }
-};
-
-const getStatusLabel = (status: string) => {
-  return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
 export default function ClinicDashboard() {
@@ -153,7 +149,7 @@ export default function ClinicDashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-4">Services Offered</h3>
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-wrap gap-2">
                   {["MRI", "CT Scan", "Pathology", "Blood Tests", "X-Ray"].map((service) => (
                     <Badge key={service} className="bg-primary/10 text-primary border-0">
                       {service}
@@ -194,7 +190,7 @@ export default function ClinicDashboard() {
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-lg font-bold text-foreground">{appointment.patientName}</h3>
                       <Badge className={`${getStatusColor(appointment.status)} border-0`}>
-                        {getStatusLabel(appointment.status)}
+                        {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                       </Badge>
                     </div>
                     <p className="text-muted-foreground text-sm mb-3">{appointment.testType}</p>
