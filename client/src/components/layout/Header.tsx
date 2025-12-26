@@ -22,29 +22,28 @@ export function Header() {
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border/40">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/">
-          <div className="flex items-center gap-2 cursor-pointer group">
-            <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
-              <Beaker className="w-6 h-6 text-primary" />
-            </div>
-            <span className="font-heading font-bold text-xl tracking-tight text-foreground">
-              Lab<span className="text-primary">Finder</span>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <span className="font-heading font-bold text-lg tracking-tight text-foreground">
+              <span className="text-primary">Lab</span>Finder
             </span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          <NavItems />
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Find a Lab</span>
+          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">For Clinics</span>
+          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Help</span>
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost" className="text-muted-foreground hover:text-primary">Sign In</Button>
-          <Button className="font-medium">Book Appointment</Button>
+        <div className="hidden md:flex items-center gap-3">
+          <Button variant="ghost" className="text-sm text-muted-foreground hover:text-primary">Sign In</Button>
+          <Button className="text-sm font-medium">Book Now</Button>
         </div>
 
         {/* Mobile Menu */}
