@@ -1,5 +1,4 @@
 import { Header } from "@/components/layout/Header";
-import { Hero } from "@/components/home/Hero";
 import { ClinicCard } from "@/components/home/ClinicCard";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock, FileText, Beaker } from "lucide-react";
@@ -47,8 +46,6 @@ export default function Home() {
     <div className="min-h-screen bg-background font-sans">
       <Header />
       <main>
-        <Hero />
-        
         <section className="py-20 container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
             <div>
