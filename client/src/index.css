@@ -44,8 +44,8 @@
   --background: 210 20% 98%;
   --foreground: 215 25% 27%;
 
-  /* Medical Teal/Blue Primary */
-  --primary: 185 85% 35%;
+  /* Deep Blue Primary - LabNearMe Brand */
+  --primary: 216 85% 31%;
   --primary-foreground: 0 0% 100%;
 
   /* Soft Blue/Gray Secondary */
@@ -67,7 +67,7 @@
   /* Borders & Inputs */
   --border: 215 15% 90%;
   --input: 215 15% 90%;
-  --ring: 185 85% 35%;
+  --ring: 216 85% 31%;
 
   /* Cards */
   --card: 0 0% 100%;
@@ -80,7 +80,7 @@
   --background: 222 47% 11%;
   --foreground: 210 40% 98%;
 
-  --primary: 185 70% 50%;
+  --primary: 216 85% 45%;
   --primary-foreground: 222 47% 11%;
 
   --secondary: 217 32% 17%;

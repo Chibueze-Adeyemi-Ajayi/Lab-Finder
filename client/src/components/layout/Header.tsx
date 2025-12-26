@@ -28,7 +28,7 @@ export function Header() {
         <Link href="/">
           <div className="flex items-center gap-2 cursor-pointer">
             <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-              <span className="text-primary">Lab</span>Finder
+              <span className="text-primary">Lab</span>NearMe
             </span>
           </div>
         </Link>

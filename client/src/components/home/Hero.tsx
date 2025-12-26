@@ -25,10 +25,10 @@ export function Hero() {
             className="mb-12"
           >
             <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-foreground tracking-tight leading-[1.1] mb-6">
-              Find <span className="text-primary">labs & clinics</span> near you
+              The smartest way to find <span className="text-primary">a lab or clinic</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-              Search, compare, and book appointments instantly. Get reports online.
+              Discover verified labs and clinics, compare services, and book appointments in seconds. Get your reports online anytime.
             </p>
           </motion.div>
 
