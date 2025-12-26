@@ -53,21 +53,29 @@ export function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="w-[300px] sm:w-[350px]">
               <div className="flex flex-col gap-6 mt-10">
-                <NavItems />
+                <div className="flex flex-col gap-3">
+                  <Link href="/find-lab" onClick={() => setIsOpen(false)}>
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">Find a Lab</span>
+                  </Link>
+                  <Link href="/for-clinics" onClick={() => setIsOpen(false)}>
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">For Clinics</span>
+                  </Link>
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">Help</span>
+                </div>
                 <hr className="border-border" />
-                <Link href="/signin" onClick={() => setIsOpen(false)}>
+                <Link href="/signin" className="block" onClick={() => setIsOpen(false)}>
                   <Button variant="outline" className="w-full">Sign In</Button>
                 </Link>
-                <Link href="/find-lab" onClick={() => setIsOpen(false)}>
+                <Link href="/find-lab" className="block" onClick={() => setIsOpen(false)}>
                   <Button className="w-full">Book Appointment</Button>
                 </Link>
               </div>
