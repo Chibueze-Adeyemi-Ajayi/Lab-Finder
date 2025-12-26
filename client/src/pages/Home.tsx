@@ -3,6 +3,7 @@ import { Hero } from "@/components/home/Hero";
 import { ClinicCard } from "@/components/home/ClinicCard";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock, FileText, Beaker } from "lucide-react";
+import { Link } from "wouter";
 
 // Mock Data
 const FEATURED_CLINICS = [
@@ -54,9 +55,11 @@ export default function Home() {
               <h2 className="text-3xl font-heading font-bold text-foreground mb-2">Top Rated Near You</h2>
               <p className="text-muted-foreground">Highly recommended labs and clinics based on patient reviews.</p>
             </div>
-            <Button variant="ghost" className="text-primary hover:text-primary/80 hover:bg-primary/5 self-start md:self-end">
-              View All
-            </Button>
+            <Link href="/find-lab">
+              <Button variant="ghost" className="text-primary hover:text-primary/80 hover:bg-primary/5 self-start md:self-end">
+                View All
+              </Button>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

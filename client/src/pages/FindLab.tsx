@@ -191,31 +191,65 @@ export default function FindLab() {
 
         {/* Results - Map View */}
         {viewMode === "map" && (
-          <div className="container mx-auto px-4 py-8">
-            <div className="grid lg:grid-cols-3 gap-8 h-[600px]">
-              {/* List on Left */}
-              <div className="lg:col-span-1 overflow-y-auto space-y-4 pr-2">
+          <div className="relative w-full h-[700px]">
+            {/* Full Width Map Background */}
+            <div className="absolute inset-0">
+              <MapView clinics={filteredClinics} selectedDistance={selectedDistance} />
+            </div>
+
+            {/* Floating Cards on Left */}
+            <div className="absolute left-4 top-4 bottom-4 w-80 bg-white rounded-xl shadow-2xl border border-border/40 flex flex-col overflow-hidden z-20">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-4 border-b border-border/40">
+                <h3 className="font-bold text-foreground text-lg">Clinics Near You</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {filteredClinics.length} results within {selectedDistance} km
+                </p>
+              </div>
+
+              {/* Scrollable List */}
+              <div className="overflow-y-auto flex-1 space-y-2 p-4">
                 {filteredClinics.map((clinic) => (
                   <div
                     key={clinic.id}
-                    className="bg-white p-4 rounded-lg border border-border/40 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
+                    className="bg-background p-4 rounded-lg border border-border/40 hover:border-primary/40 hover:shadow-md hover:bg-primary/5 transition-all cursor-pointer group"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{clinic.name}</h3>
-                      <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">{clinic.distance}</span>
+                    {/* Image */}
+                    <div className="w-full h-24 rounded-lg overflow-hidden mb-3 bg-secondary">
+                      <img 
+                        src={clinic.image} 
+                        alt={clinic.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2">{clinic.location}</p>
-                    <div className="flex items-center gap-1">
-                      <span className="text-amber-400 text-xs font-semibold">★ {clinic.rating}</span>
-                      <span className="text-xs text-muted-foreground">({clinic.reviews})</span>
+
+                    {/* Info */}
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        {clinic.name}
+                      </h4>
+                      
+                      {/* Rating & Distance */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <span className="text-amber-400 text-xs font-semibold">★ {clinic.rating}</span>
+                          <span className="text-xs text-muted-foreground">({clinic.reviews})</span>
+                        </div>
+                        <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
+                          {clinic.distance}
+                        </span>
+                      </div>
+
+                      {/* Location */}
+                      <p className="text-xs text-muted-foreground line-clamp-1">{clinic.location}</p>
+
+                      {/* Booking Button */}
+                      <Button className="w-full h-8 text-xs font-semibold mt-2">
+                        Book Appointment
+                      </Button>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Map on Right */}
-              <div className="lg:col-span-2">
-                <MapView clinics={filteredClinics} selectedDistance={selectedDistance} />
               </div>
             </div>
           </div>
