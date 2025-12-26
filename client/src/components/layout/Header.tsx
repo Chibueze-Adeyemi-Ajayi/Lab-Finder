@@ -21,63 +21,65 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <span className="font-heading font-bold text-lg tracking-tight text-foreground">
+          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0">
+            <span className="font-heading font-bold text-lg tracking-tight text-foreground whitespace-nowrap">
               <span className="text-primary">Lab</span>NearMe
             </span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm">
+        <nav className="hidden lg:flex items-center gap-8 text-sm flex-1 justify-center">
           <Link href="/find-lab">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Find a Lab</span>
+            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Find a Lab</span>
           </Link>
           <Link href="/for-clinics">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">For Clinics</span>
+            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">For Clinics</span>
           </Link>
-          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Help</span>
+          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Help</span>
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
           <Link href="/signin">
-            <Button variant="ghost" className="text-sm text-muted-foreground hover:text-primary">Sign In</Button>
+            <Button variant="ghost" className="text-sm text-muted-foreground hover:text-primary px-3">Sign In</Button>
           </Link>
           <Link href="/find-lab">
-            <Button className="text-sm font-medium">Book Now</Button>
+            <Button className="text-sm font-medium px-4 py-2 h-9">Book Now</Button>
           </Link>
         </div>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden flex items-center">
+        {/* Tablet & Mobile Menu */}
+        <div className="lg:hidden flex items-center">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[350px]">
-              <div className="flex flex-col gap-6 mt-10">
-                <div className="flex flex-col gap-3">
+            <SheetContent side="right" className="w-80 sm:w-96 px-6">
+              <div className="flex flex-col gap-8 mt-12">
+                <div className="flex flex-col gap-4 space-y-2">
                   <Link href="/find-lab" onClick={() => setIsOpen(false)}>
-                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">Find a Lab</span>
+                    <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">Find a Lab</span>
                   </Link>
                   <Link href="/for-clinics" onClick={() => setIsOpen(false)}>
-                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">For Clinics</span>
+                    <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">For Clinics</span>
                   </Link>
-                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer block py-2">Help</span>
+                  <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">Help</span>
                 </div>
-                <hr className="border-border" />
-                <Link href="/signin" className="block" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
-                </Link>
-                <Link href="/find-lab" className="block" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full">Book Appointment</Button>
-                </Link>
+                <div className="w-full h-px bg-border"></div>
+                <div className="flex flex-col gap-3">
+                  <Link href="/signin" className="block" onClick={() => setIsOpen(false)}>
+                    <Button variant="outline" className="w-full h-10 font-semibold">Sign In</Button>
+                  </Link>
+                  <Link href="/find-lab" className="block" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full h-10 font-semibold">Book Appointment</Button>
+                  </Link>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
