@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import heroBg from "@assets/generated_images/clean_abstract_medical_background.png";
+import heroImage from "@assets/generated_images/modern_medical_lab_and_healthcare_services_illustration.png";
 
 export function Hero() {
   const [distance, setDistance] = useState(5);
@@ -17,7 +18,8 @@ export function Hero() {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,6 +97,21 @@ export function Hero() {
                 MRI Scan
               </button>
             </div>
+          </motion.div>
+          </div>
+
+          {/* Hero Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="hidden md:flex justify-center"
+          >
+            <img 
+              src={heroImage} 
+              alt="Medical lab and healthcare services" 
+              className="w-full max-w-md drop-shadow-lg"
+            />
           </motion.div>
         </div>
       </div>

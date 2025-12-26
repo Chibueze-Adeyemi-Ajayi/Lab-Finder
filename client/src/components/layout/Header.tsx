@@ -15,12 +15,6 @@ export function Header() {
       <Link href="/for-clinics">
         <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">For Clinics</span>
       </Link>
-      <Link href="/user/dashboard">
-        <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">My Requests</span>
-      </Link>
-      <Link href="/clinic/dashboard">
-        <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">Clinic Dashboard</span>
-      </Link>
       <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">Help</span>
     </>
   );
@@ -44,12 +38,6 @@ export function Header() {
           </Link>
           <Link href="/for-clinics">
             <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">For Clinics</span>
-          </Link>
-          <Link href="/user/dashboard">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">My Requests</span>
-          </Link>
-          <Link href="/clinic/dashboard">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Clinic Dashboard</span>
           </Link>
           <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Help</span>
         </nav>
