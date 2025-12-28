@@ -37,12 +37,17 @@ function Router() {
   );
 }
 
+import { CookieConsent } from "@/components/layout/CookieConsent";
+import { PWAInstallPrompt } from "@/components/layout/PWAInstallPrompt";
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Router />
         <Toaster />
+        <CookieConsent />
+        <PWAInstallPrompt />
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -116,9 +116,21 @@ export const toPatients = {
         fetchApi(`/lab-requests/me/requests/${requestId}/rate`, { method: "POST", body: data, tokenRole: "patient" }),
 };
 
+// Helper to get IP address
+async function getIpAddress(): Promise<string | undefined> {
+    try {
+        const response = await fetch("https://api64.ipify.org?format=json");
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error("Failed to get IP address:", error);
+        return undefined;
+    }
+}
+
 // 4. Public
 export const toPublic = {
-    searchClinics: (params: { q?: string; radius?: number; skip?: number; limit?: number; lat?: number; lng?: number; location?: string } = {}) => {
+    searchClinics: async (params: { q?: string; radius?: number; skip?: number; limit?: number; lat?: number; lng?: number; location?: string } = {}) => {
         const queryParams = new URLSearchParams();
         if (params.q) queryParams.append("q", params.q);
         if (params.location) queryParams.append("location", params.location);
@@ -127,6 +139,15 @@ export const toPublic = {
         if (params.limit !== undefined) queryParams.append("limit", params.limit.toString());
         if (params.lat !== undefined) queryParams.append("lat", params.lat.toString());
         if (params.lng !== undefined) queryParams.append("lng", params.lng.toString());
+
+        // Add IP address to search params ONLY if cookie consent is accepted
+        const consent = localStorage.getItem("cookie-consent");
+        if (consent === "accepted") {
+            const ip = await getIpAddress();
+            if (ip) {
+                queryParams.append("ip_address", ip);
+            }
+        }
 
         return fetchApi(`/clinics/public/search?${queryParams.toString()}`);
     },

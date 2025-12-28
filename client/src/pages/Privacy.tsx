@@ -18,7 +18,7 @@ export default function Privacy() {
                         <ul className="list-disc pl-6 space-y-2">
                             <li><strong>Account Info:</strong> Name, email address, phone number.</li>
                             <li><strong>Medical Data:</strong> Lab requests, test results (encrypted and accessible only by you and the clinic).</li>
-                            <li><strong>Location:</strong> Coordinates used to find nearby clinics (only with your permission).</li>
+                            <li><strong>Location & Device:</strong> GPS coordinates (with permission) and your <strong>IP Address</strong>. We collect your IP address to personalize your search experience and remember your preferences for subsequent visits.</li>
                         </ul>
                     </section>
 

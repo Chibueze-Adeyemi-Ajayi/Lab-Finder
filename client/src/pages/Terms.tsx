@@ -18,7 +18,12 @@ export default function Terms() {
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold text-foreground mb-4">3. Disclaimer</h2>
+                        <h2 className="text-2xl font-bold text-foreground mb-4">3. Data Collection & Personalization</h2>
+                        <p>We collect and store your device's <strong>IP Address</strong> when you use our search features. This data is used solely to personalize your search requests, remember your preferred locations, and improve your overall experience during subsequent visits. By using our services, you consent to this collection and use of data.</p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold text-foreground mb-4">4. Disclaimer</h2>
                         <p>The materials on LabNearMe's website are provided on an 'as is' basis. LabNearMe makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
                     </section>
 
