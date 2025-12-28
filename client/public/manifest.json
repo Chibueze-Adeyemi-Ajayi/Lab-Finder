@@ -1,0 +1,27 @@
+{
+    "name": "LabNearMe",
+    "short_name": "LabNearMe",
+    "description": "Find top-rated medical labs and clinics near you instantly.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0F172A",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "/pwa-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/pwa-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
