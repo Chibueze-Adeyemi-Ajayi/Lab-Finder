@@ -309,7 +309,7 @@ export default function FindLab() {
               <div className="mt-4 flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-in fade-in slide-in-from-top-1">
                 <div className="flex items-center text-sm text-emerald-700">
                   <MapPin className="w-4 h-4 mr-2" />
-                  Showing labs near: <span className="font-bold ml-1">{addressDisplay || "Loading address..."}</span>
+                  Showing labs around: <span className="font-bold ml-1">{addressDisplay || "Loading address..."}</span>
                 </div>
                 <button onClick={handleClearProximity} className="text-emerald-600 hover:text-emerald-800">
                   <X className="w-4 h-4" />

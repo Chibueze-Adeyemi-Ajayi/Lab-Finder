@@ -154,15 +154,21 @@ export function Hero() {
               {/* Quick Links */}
               <div className="flex gap-3 flex-wrap text-sm">
                 <span className="text-muted-foreground font-medium">Quick:</span>
-                <button className="px-3 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 transition-colors text-sm">
-                  Blood Test
-                </button>
-                <button className="px-3 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 transition-colors text-sm">
-                  Full Checkup
-                </button>
-                <button className="px-3 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 transition-colors text-sm">
-                  MRI Scan
-                </button>
+                {["Blood Test", "Full Checkup", "MRI Scan"].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setSearchQuery(term);
+                      const params = new URLSearchParams();
+                      params.append("q", term);
+                      if (locationQuery) params.append("location", locationQuery);
+                      setLocation(`/find-lab?${params.toString()}`);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 transition-colors text-sm cursor-pointer"
+                  >
+                    {term}
+                  </button>
+                ))}
               </div>
             </motion.div>
           </div>
