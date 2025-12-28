@@ -153,7 +153,7 @@ export function Hero() {
 
               {/* Quick Links */}
               <div className="flex gap-3 flex-wrap text-sm">
-                <span className="text-muted-foreground font-medium">Quick:</span>
+                <span className="text-muted-foreground font-medium mt-1">Quick:</span>
                 {["Blood Test", "Body Checkup", "X-Ray", "MRI Scan"].map((term) => (
                   <button
                     key={term}
