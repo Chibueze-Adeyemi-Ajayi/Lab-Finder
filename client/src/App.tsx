@@ -10,6 +10,12 @@ import ClinicSignup from "@/pages/ClinicSignup";
 import SignIn from "@/pages/SignIn";
 import UserDashboard from "@/pages/UserDashboard";
 import ClinicDashboard from "@/pages/ClinicDashboard";
+import Help from "@/pages/Help";
+import LearnMore from "@/pages/LearnMore";
+import MapNavigation from "@/pages/MapNavigation";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
+import Contact from "@/pages/Contact";
 
 function Router() {
   return (
@@ -20,6 +26,12 @@ function Router() {
       <Route path="/signin" component={SignIn} />
       <Route path="/user/dashboard" component={UserDashboard} />
       <Route path="/clinic/dashboard" component={ClinicDashboard} />
+      <Route path="/help" component={Help} />
+      <Route path="/learn-more" component={LearnMore} />
+      <Route path="/map-navigation" component={MapNavigation} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
   );

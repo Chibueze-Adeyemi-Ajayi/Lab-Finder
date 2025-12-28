@@ -3,24 +3,92 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Building2, ShieldCheck } from "lucide-react";
+import { toPatients, toClinics, toSuperAdmin, setToken } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation, Link } from "wouter";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+type Role = "patient" | "clinic" | "superadmin";
 
 export default function SignIn() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<Role>("patient");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { toast } = useToast();
+  const [_, setLocation] = useLocation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedTerms) {
+      toast({
+        title: "Agreement Required",
+        description: "Please accept the terms and conditions to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (isSignUp) {
+        // Handle Sign Up
+        if (role === "patient") {
+          await toPatients.signup({ full_name: name, email, password });
+          toast({ title: "Account created!", description: "Please login to continue." });
+          setIsSignUp(false);
+        } else if (role === "clinic") {
+          // Redirect to dedicated clinic signup page as it's more complex
+          setLocation("/for-clinics");
+        } else {
+          toast({ title: "Error", description: "Super Admin signup is not publicly available.", variant: "destructive" });
+        }
+      } else {
+        // Handle Login
+        let response;
+        if (role === "patient") {
+          // Postman: username=email, password=password
+          response = await toPatients.login({ username: email, password });
+          setToken("patient", response.access_token);
+          setLocation("/user/dashboard");
+        } else if (role === "clinic") {
+          response = await toClinics.login({ username: email, password });
+          setToken("clinic", response.access_token);
+          setLocation("/clinic/dashboard");
+        } else if (role === "superadmin") {
+          response = await toSuperAdmin.login({ username: email, password });
+          setToken("superadmin", response.access_token);
+          setLocation("/"); // No superadmin dashboard yet
+          toast({ title: "Success", description: "Logged in as Super Admin" });
+        }
+
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center py-12">
       <Header />
-      
+
       <div className="container mx-auto px-4 max-w-md pt-24 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -34,15 +102,54 @@ export default function SignIn() {
               {isSignUp ? "Create Account" : "Welcome Back"}
             </h1>
             <p className="text-muted-foreground">
-              {isSignUp 
-                ? "Join LabNearMe to book appointments easily" 
+              {isSignUp
+                ? "Join LabNearMe to book appointments easily"
                 : "Sign in to your LabNearMe account"}
             </p>
           </div>
 
+          {/* Role Selection */}
+          {/* <div className="flex justify-center gap-2 mb-6 p-1 bg-secondary/50 rounded-lg">
+            <button
+              type="button"
+              onClick={() => setRole("patient")}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === "patient" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <User className="w-4 h-4" />
+                <span>Patient</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("clinic")}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === "clinic" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Building2 className="w-4 h-4" />
+                <span>Clinic</span>
+              </div>
+            </button>
+            {!isSignUp && (
+              <button
+                type="button"
+                onClick={() => setRole("superadmin")}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === "superadmin" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                  }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Admin</span>
+                </div>
+              </button>
+            )}
+          </div> */}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
+            {isSignUp && role === "patient" && (
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">Full Name</label>
                 <Input
@@ -56,7 +163,7 @@ export default function SignIn() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-foreground mb-2">Email Address</label>
+              <label className="block text-sm font-semibold text-foreground mb-2">Email as Username</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
                 <Input
@@ -69,19 +176,6 @@ export default function SignIn() {
                 />
               </div>
             </div>
-
-            {isSignUp && (
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Phone Number</label>
-                <Input
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-            )}
 
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Password</label>
@@ -105,18 +199,23 @@ export default function SignIn() {
               </div>
             </div>
 
-            {!isSignUp && (
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-border" />
-                  <span className="text-muted-foreground">Remember me</span>
-                </label>
-                <a href="#" className="text-primary hover:underline font-medium">Forgot password?</a>
-              </div>
-            )}
+            <div className="flex items-start space-x-2 mt-4">
+              <Checkbox
+                id="terms"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <Label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 font-medium text-muted-foreground">
+                I accept the{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms of Service</a>
+                {" "}and{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>
+              </Label>
+            </div>
 
-            <Button type="submit" className="w-full h-11 font-semibold mt-6">
-              {isSignUp ? "Create Account" : "Sign In"}
+            <Button type="submit" className="w-full h-11 font-semibold mt-6" disabled={isLoading}>
+              {isLoading ? "Processing..." : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
           </form>
 
@@ -128,16 +227,6 @@ export default function SignIn() {
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-muted-foreground">Or</span>
             </div>
-          </div>
-
-          {/* Social Sign In */}
-          <div className="space-y-3">
-            <Button variant="outline" className="w-full h-11">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M15.545 6.558a9.42 9.42 0 01.139 1.626c0 2.889-2.868 6.215-6.215 6.215-1.23 0-2.432-.198-3.534-.6a6.053 6.053 0 003.41-5.195c0-.937-.159-1.841-.46-2.71A4.006 4.006 0 0016.807 7.07z"/>
-              </svg>
-              Continue with Google
-            </Button>
           </div>
 
           {/* Toggle Sign In / Sign Up */}
@@ -154,16 +243,6 @@ export default function SignIn() {
             </button>
           </div>
         </motion.div>
-
-        {/* Trust Badges */}
-        <div className="mt-12 text-center">
-          <p className="text-xs text-muted-foreground mb-4">Trusted by thousands of patients</p>
-          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <span>🔒 Secure & Encrypted</span>
-            <span>✓ Verified Clinics</span>
-            <span>24/7 Support</span>
-          </div>
-        </div>
       </div>
     </div>
   );

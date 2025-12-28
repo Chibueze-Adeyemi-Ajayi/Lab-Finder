@@ -15,7 +15,9 @@ export function Header() {
       <Link href="/for-clinics">
         <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">For Clinics</span>
       </Link>
-      <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">Help</span>
+      <Link href="/help">
+        <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">Help</span>
+      </Link>
     </>
   );
 
@@ -39,17 +41,19 @@ export function Header() {
           <Link href="/for-clinics">
             <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">For Clinics</span>
           </Link>
-          <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Help</span>
+          <Link href="/help">
+            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Help</span>
+          </Link>
         </nav>
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-          <Link href="/signin">
-            <Button variant="ghost" className="text-sm text-muted-foreground hover:text-primary px-3">Sign In</Button>
-          </Link>
-          <Link href="/find-lab">
+          {/* <Link href="/signin">
+            <Button className="text-sm  hover:text-primary px-3">Sign In</Button>
+          </Link> */}
+          {/* <Link href="/find-lab">
             <Button className="text-sm font-medium px-4 py-2 h-9">Book Now</Button>
-          </Link>
+          </Link> */}
         </div>
 
         {/* Tablet & Mobile Menu */}
@@ -69,16 +73,18 @@ export function Header() {
                   <Link href="/for-clinics" onClick={() => setIsOpen(false)}>
                     <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">For Clinics</span>
                   </Link>
-                  <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">Help</span>
+                  <Link href="/help" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">Help</span>
+                  </Link>
                 </div>
                 <div className="w-full h-px bg-border"></div>
                 <div className="flex flex-col gap-3">
-                  <Link href="/signin" className="block" onClick={() => setIsOpen(false)}>
+                  {/* <Link href="/signin" className="block" onClick={() => setIsOpen(false)}>
                     <Button variant="outline" className="w-full h-10 font-semibold">Sign In</Button>
-                  </Link>
-                  <Link href="/find-lab" className="block" onClick={() => setIsOpen(false)}>
+                  </Link> */}
+                  {/* <Link href="/find-lab" className="block" onClick={() => setIsOpen(false)}>
                     <Button className="w-full h-10 font-semibold">Book Appointment</Button>
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             </SheetContent>

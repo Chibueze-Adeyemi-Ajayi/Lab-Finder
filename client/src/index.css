@@ -114,3 +114,29 @@
     @apply font-heading tracking-tight;
   }
 }
+@layer utilities {
+  .animate-progress-fast {
+    animation: progress-fast 1s linear infinite;
+    background-size: 200% 100%;
+    background-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+  }
+
+  @keyframes progress-fast {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  @keyframes slide-in-right {
+    0% { transform: translateX(10px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+}

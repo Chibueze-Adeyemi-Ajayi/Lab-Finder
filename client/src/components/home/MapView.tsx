@@ -1,78 +1,239 @@
-import { MapPin } from "lucide-react";
-
-interface MapClinic {
-  id: number;
-  name: string;
-  distance: string;
-  rating: number;
-  location: string;
-  position: { top: string; left: string };
-}
+import { useEffect, useState, useRef } from "react";
+import { Loader2, MapPin } from "lucide-react";
 
 interface MapViewProps {
-  clinics: MapClinic[];
-  selectedDistance: number;
+  clinics: any[];
+  selectedDistance?: number;
+  userLocation?: { lat: number; lng: number };
 }
 
-export function MapView({ clinics, selectedDistance }: MapViewProps) {
-  const filteredClinics = clinics.filter(clinic => {
-    const distNum = parseFloat(clinic.distance);
-    return distNum <= selectedDistance;
-  });
+declare global {
+  interface Window {
+    L: any;
+  }
+}
 
-  return (
-    <div className="relative w-full h-full bg-gradient-to-br from-blue-50 via-blue-100/30 to-blue-50 rounded-xl overflow-hidden border border-border/40">
+export function MapView({ clinics, selectedDistance = 5, userLocation }: MapViewProps) {
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const userMarkerRef = useRef<any>(null);
 
-      {/* Street Grid Pattern */}
-      <div className="absolute inset-0 opacity-10" style={{
-        backgroundImage: `linear-gradient(0deg, #cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)`,
-        backgroundSize: '40px 40px'
-      }}></div>
+  useEffect(() => {
+    // Load Leaflet via CDN if not already loaded
+    if (!document.getElementById("leaflet-js")) {
+      const script = document.createElement("script");
+      script.id = "leaflet-js";
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.async = true;
+      script.onload = () => initMap();
+      document.head.appendChild(script);
 
-      {/* Clinic Markers */}
-      <div className="absolute inset-0">
-        {filteredClinics.map((clinic) => (
-          <div
-            key={clinic.id}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-            style={{ top: clinic.position.top, left: clinic.position.left }}
-          >
-            {/* Pulse Circle */}
-            <div className="absolute -inset-2 bg-primary/20 rounded-full animate-pulse group-hover:bg-primary/30 transition-colors"></div>
+      const style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(style);
+    } else if (window.L) {
+      initMap();
+    }
 
-            {/* Marker Pin */}
-            <div className="relative w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all group-hover:scale-110 cursor-pointer border border-primary/20">
-              <MapPin className="w-5 h-5" />
+    function initMap() {
+      if (!window.L || mapRef.current) return;
+
+      const L = window.L;
+
+      // Fix marker icons
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+
+      // Default center (could be a major city or userLocation if provided)
+      const center: [number, number] = userLocation ? [userLocation.lat, userLocation.lng] : [6.5244, 3.3792]; // Lagos default
+
+      const map = L.map("clinics-map").setView(center, 13);
+      mapRef.current = map;
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      setMapLoaded(true);
+
+      // If no userLocation provided yet, try to get it
+      if (!userLocation) {
+        requestUserLocation();
+      }
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  const requestUserLocation = () => {
+    if (!navigator.geolocation || !window.L || !mapRef.current) return;
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const L = window.L;
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        mapRef.current.setView([lat, lng], 13);
+
+        if (userMarkerRef.current) {
+          mapRef.current.removeLayer(userMarkerRef.current);
+        }
+
+        const userIcon = L.divIcon({
+          className: "user-current-location",
+          html: `<div class="w-6 h-6 bg-blue-600 border-4 border-white rounded-full shadow-lg animate-pulse"></div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+
+        userMarkerRef.current = L.marker([lat, lng], { icon: userIcon })
+          .addTo(mapRef.current)
+          .bindPopup("You are here");
+
+        setIsLocating(false);
+      },
+      (err) => {
+        console.error(err);
+        setIsLocating(false);
+      }
+    );
+  };
+
+  // Sync Markers when clinics data changes
+  useEffect(() => {
+    if (!mapLoaded || !window.L || !mapRef.current) return;
+
+    const L = window.L;
+
+    // Clear old markers
+    markersRef.current.forEach(m => mapRef.current.removeLayer(m));
+    markersRef.current = [];
+
+    clinics.forEach((clinic) => {
+      let lat, lng;
+      if (clinic.location?.coordinates) {
+        lng = clinic.location.coordinates[0];
+        lat = clinic.location.coordinates[1];
+      } else if (clinic.latitude && clinic.longitude) {
+        lat = clinic.latitude;
+        lng = clinic.longitude;
+      }
+
+      if (lat && lng) {
+        const image = clinic.image || (clinic.images && clinic.images[0]) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400";
+        const address = typeof clinic.address === 'object'
+          ? `${clinic.address.street_address || ''}, ${clinic.address.city || ''}`
+          : (clinic.address || clinic.location || "Address not specified");
+
+        const clinicIcon = L.divIcon({
+          className: "clinic-marker",
+          html: `<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>`,
+          iconSize: [40, 40],
+          iconAnchor: [20, 40]
+        });
+
+        const popupContent = `
+          <div class="p-1 max-w-[200px] font-sans">
+            <div class="h-24 w-full mb-2 rounded-lg overflow-hidden bg-muted">
+              <img src="${image}" class="w-full h-full object-cover" />
             </div>
-
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-foreground text-background px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
-              <div>{clinic.name}</div>
-              <div className="text-primary-foreground/80">{clinic.distance} • ★{clinic.rating}</div>
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-foreground"></div>
+            <h3 class="font-bold text-sm text-foreground line-clamp-1">${clinic.name}</h3>
+            <p class="text-[11px] text-muted-foreground mt-1 line-clamp-2">${address}</p>
+            <div class="mt-2 flex items-center gap-1 text-[10px] font-bold text-primary">
+              <span class="bg-primary/10 px-1.5 py-0.5 rounded">★ ${clinic.rating || 4.5}</span>
+              <span class="bg-primary/10 px-1.5 py-0.5 rounded">${clinic.distance || 'Nearby'}</span>
             </div>
           </div>
-        ))}
-      </div>
+        `;
 
-      {/* Map Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-lg border border-border/40 shadow-md">
-        <div className="text-xs font-semibold text-foreground mb-2">Search Radius</div>
-        <div className="text-sm text-muted-foreground">
-          Within <span className="font-bold text-primary">{selectedDistance} km</span>
-        </div>
-        <div className="text-xs text-muted-foreground mt-1">
-          Found: <span className="font-semibold text-foreground">{filteredClinics.length}</span> clinics
-        </div>
-      </div>
+        const marker = L.marker([lat, lng], { icon: clinicIcon })
+          .addTo(mapRef.current)
+          .bindPopup(popupContent, { minWidth: 200 });
 
-      {/* Top Right Info */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-lg border border-border/40 shadow-md">
-        <div className="flex items-center gap-2 text-xs text-foreground">
-          <div className="w-3 h-3 bg-primary rounded-full"></div>
-          <span>Verified Clinic</span>
+        markersRef.current.push(marker);
+      }
+    });
+
+    // Auto-fit bounds if markers exist
+    if (markersRef.current.length > 0) {
+      const group = L.featureGroup(markersRef.current);
+      mapRef.current.fitBounds(group.getBounds().pad(0.1));
+    }
+  }, [clinics, mapLoaded]);
+
+  // Sync User Location from Props
+  useEffect(() => {
+    if (userLocation && mapRef.current && window.L) {
+      const L = window.L;
+      mapRef.current.setView([userLocation.lat, userLocation.lng], 13);
+
+      if (userMarkerRef.current) {
+        mapRef.current.removeLayer(userMarkerRef.current);
+      }
+
+      const userIcon = L.divIcon({
+        className: "user-current-location",
+        html: `<div class="w-6 h-6 bg-blue-600 border-4 border-white rounded-full shadow-lg animate-pulse"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+        .addTo(mapRef.current)
+        .bindPopup("You are here");
+    }
+  }, [userLocation, mapLoaded]);
+
+  return (
+    <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner">
+      {!mapLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted/30 z-10">
+          <Loader2 className="w-8 h-8 animate-spin text-primary/40" />
         </div>
-      </div>
+      )}
+
+      {isLocating && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-primary/20 flex items-center gap-2 text-xs font-bold text-primary animate-in fade-in zoom-in duration-300">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          LOCATING YOU...
+        </div>
+      )}
+
+      <div id="clinics-map" className="w-full h-full z-0" />
+
+      <style>{`
+        .leaflet-popup-content-wrapper {
+          border-radius: 12px !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+        .leaflet-popup-content {
+          margin: 0 !important;
+          width: 200px !important;
+        }
+        .leaflet-popup-tip-container {
+          display: none !important;
+        }
+        .leaflet-container {
+          font-family: inherit !important;
+        }
+      `}</style>
     </div>
   );
 }
