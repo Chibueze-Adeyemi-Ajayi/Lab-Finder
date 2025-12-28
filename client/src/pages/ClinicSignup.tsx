@@ -527,8 +527,8 @@ export default function ClinicSignup() {
                           </button>
                         </div>
                       </div>
-                      <div className="flex items-start space-x-2 pt-2 pb-4">
-                        {/* <Checkbox
+                      {/* <div className="flex items-start space-x-2 pt-2 pb-4">
+                        <Checkbox
                           id="clinic-login-terms"
                           checked={acceptedTerms}
                           onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
@@ -536,8 +536,8 @@ export default function ClinicSignup() {
                         />
                         <Label htmlFor="clinic-login-terms" className="text-xs mt-1 leading-tight font-medium text-muted-foreground">
                           I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms of Service</a>
-                        </Label> */}
-                      </div>
+                        </Label>
+                      </div> */}
 
                       <Button type="submit" className="w-full h-11 font-semibold" disabled={isLoading}>
                         {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Login to Dashboard"}
