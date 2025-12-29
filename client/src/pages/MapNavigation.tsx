@@ -13,8 +13,23 @@ import {
     Footprints,
     Target,
     Clock,
-    Info
+    Info,
+    ChevronDown,
+    ChevronUp,
+    Minimize2
 } from "lucide-react";
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 declare global {
     interface Window {
@@ -33,6 +48,7 @@ export default function MapNavigation() {
 
     const [isLocating, setIsLocating] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false);
     const [mapType, setMapType] = useState<MapType>("street");
     const [distance, setDistance] = useState<string | null>(null);
     const [travelTime, setTravelTime] = useState<Record<TravelMode, string | null>>({
@@ -245,54 +261,100 @@ export default function MapNavigation() {
 
             <main className="flex-1 relative pt-16">
                 {/* Info Overlay */}
-                <div className="absolute top-20 left-4 z-[1000] max-w-sm w-full space-y-4">
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 md:left-4 md:translate-x-0 z-[1000] w-[calc(100%-2rem)] max-w-sm space-y-4 transition-all duration-300">
                     <Card className="shadow-2xl border-border/40 backdrop-blur-md bg-white/90 overflow-hidden">
                         <CardContent className="p-0">
-                            <div className="p-5 border-b border-border/40">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="mb-4 -ml-2 text-muted-foreground hover:text-primary transition-all hover:bg-primary/5"
-                                    onClick={() => window.history.back()}
-                                >
-                                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
-                                </Button>
+                            <div className="p-5 border-b border-border/40 relative">
+                                <div className="flex items-center justify-between mb-4">
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="-ml-2 text-muted-foreground hover:text-primary transition-all hover:bg-primary/5 h-8 px-2"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-2xl">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle className="flex items-center gap-2">
+                                                    <Info className="w-5 h-5 text-primary" />
+                                                    Exit Navigation?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Are you sure you want to close the map? Your current location tracking and route will be lost.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter className="mt-4">
+                                                <AlertDialogCancel className="rounded-xl border-border/40">Cancel</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    className="rounded-xl bg-primary hover:bg-primary/90"
+                                                    onClick={() => window.history.back()}
+                                                >
+                                                    Confirm
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
 
-                                <div className="flex items-start gap-3 mb-6">
-                                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 border border-primary/20">
-                                        <MapPin className="w-6 h-6 text-primary" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h1 className="font-bold text-xl leading-snug text-foreground">{clinicName}</h1>
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                                            <Navigation className="w-3 h-3 text-primary" />
-                                            <span>Destination coordinates locked</span>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-muted-foreground hover:text-primary h-8 w-8 p-0"
+                                        onClick={() => setIsMinimized(!isMinimized)}
+                                        title={isMinimized ? "Expand navigation" : "Minimize navigation"}
+                                    >
+                                        {isMinimized ? <ChevronDown className="w-5 h-5" /> : <Minimize2 className="w-4 h-4" />}
+                                    </Button>
+                                </div>
+
+                                {!isMinimized && (
+                                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                                        <div className="flex items-start gap-3 mb-6">
+                                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 border border-primary/20">
+                                                <MapPin className="w-6 h-6 text-primary" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h1 className="font-bold text-xl leading-snug text-foreground">{clinicName}</h1>
+                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                                    <Navigation className="w-3 h-3 text-primary" />
+                                                    <span>Destination coordinates locked</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2 mb-4">
+                                            <Button
+                                                className="h-11 font-bold gap-2 shadow-lg shadow-primary/20 flex-1"
+                                                onClick={handleGetRoute}
+                                                disabled={isLocating || !mapLoaded}
+                                            >
+                                                {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
+                                                Get Route
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="h-11 font-bold gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
+                                                onClick={focusClinic}
+                                            >
+                                                <Target className="w-4 h-4" />
+                                                Pin Focus
+                                            </Button>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="grid grid-cols-2 gap-2 mb-4">
-                                    <Button
-                                        className="h-11 font-bold gap-2 shadow-lg shadow-primary/20 flex-1"
-                                        onClick={handleGetRoute}
-                                        disabled={isLocating || !mapLoaded}
-                                    >
-                                        {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-                                        Get Route
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="h-11 font-bold gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
-                                        onClick={focusClinic}
-                                    >
-                                        <Target className="w-4 h-4" />
-                                        Pin Focus
-                                    </Button>
-                                </div>
+                                {isMinimized && (
+                                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <MapPin className="w-4 h-4 text-primary shrink-0" />
+                                        <span className="font-bold text-sm truncate">{clinicName}</span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Estimated Times Area */}
-                            {distance && (
+                            {!isMinimized && distance && (
                                 <div className="p-5 bg-secondary/20 animate-in fade-in slide-in-from-top-2 duration-500">
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Estimated Arrival</span>
