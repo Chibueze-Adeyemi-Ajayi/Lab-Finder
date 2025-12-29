@@ -51,7 +51,26 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
   const tags = clinic.tags ?? clinic.services?.slice(0, 3) ?? [];
   const image = clinic.image ?? clinic.images?.[0] ?? "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800";
   const isOpen = clinic.isOpen ?? clinic.is_online ?? false;
-  const distance = clinic.distance ?? "Near You";
+  const getDistanceLabel = (dist?: string | number) => {
+    if (!dist) return "Near You";
+
+    let numericDist: number;
+    if (typeof dist === 'string') {
+      // Parse number from string like "5.2 km" or "10"
+      numericDist = parseFloat(dist.replace(/[^\d.]/g, ''));
+    } else {
+      numericDist = dist;
+    }
+
+    if (isNaN(numericDist)) return dist.toString();
+
+    if (numericDist < 5) return "Near";
+    if (numericDist < 10) return "Fairly far";
+    if (numericDist < 20) return "Moderate";
+    return "Far";
+  };
+
+  const distanceLabel = getDistanceLabel(clinic.distance);
 
   // Coordinates Extraction
   let lat: number | null = null;
@@ -92,7 +111,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
             <span>{rating}</span>
             <span className="text-muted-foreground font-normal">({reviews})</span>
           </div>
-          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distance}</span>
+          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
         </div>
         <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {clinic.name}

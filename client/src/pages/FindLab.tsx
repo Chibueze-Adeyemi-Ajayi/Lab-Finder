@@ -3,7 +3,7 @@ import { ClinicCard } from "@/components/home/ClinicCard";
 import { MapView } from "@/components/home/MapView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Map, List, Building2, Star, Navigation, Loader2, X } from "lucide-react";
+import { Search, MapPin, Map, List, Building2, Star, Navigation, Loader2, X, ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toPublic, toPatients, getToken } from "@/lib/api";
@@ -25,6 +25,8 @@ const DISTANCE_OPTIONS = [5, 10, 15, 20, 50, 100];
 export default function FindLab() {
   const [locationPath, setLocationPath] = useLocation();
   const { toast } = useToast();
+
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   // Initialize state from URL params
   const getParams = () => new URLSearchParams(window.location.search);
@@ -207,8 +209,25 @@ export default function FindLab() {
       <main className="pt-24 pb-20">
         {/* Search Header */}
         <div className="sticky top-16 bg-white/80 backdrop-blur-md border-b border-border/40 z-40">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex flex-col md:flex-row gap-3 mb-5">
+          <div className="container mx-auto px-4 py-4 md:py-6">
+            {/* Mobile Toggle */}
+            <div className="flex md:hidden items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-primary">
+                <Filter className="w-4 h-4" />
+                <span className="font-bold text-sm uppercase tracking-wider">Search & Filters</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                className="h-9 px-3 gap-2 border-primary/20 text-primary"
+              >
+                {isSearchExpanded ? "Hide" : "Show"}
+                {isSearchExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+            </div>
+
+            <div className={`${isSearchExpanded ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-3 mb-5 transition-all duration-300`}>
               <div className="relative flex-1 group">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors pointer-events-none" />
                 <Input
@@ -242,8 +261,8 @@ export default function FindLab() {
               </Button>
             </div>
 
-            {/* Distance & Proximity Controls */}
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            {/* Distance & Proximity Controls - also hidden when collapsed on mobile */}
+            <div className={`${isSearchExpanded ? 'flex' : 'hidden md:flex'} flex-col md:flex-row justify-between md:items-center gap-4`}>
               {userLat && userLng ? (
                 <div className="flex items-center gap-3 flex-wrap animate-in fade-in slide-in-from-left-2 duration-300">
                   <div className="flex items-center gap-2">
