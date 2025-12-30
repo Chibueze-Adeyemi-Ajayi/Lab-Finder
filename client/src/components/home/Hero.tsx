@@ -42,6 +42,18 @@ export function Hero() {
     }
   }, []);
 
+  const [isPWA, setIsPWA] = useState(false);
+
+  useEffect(() => {
+    const checkPWA = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+      setIsPWA(!!isStandalone);
+    };
+    checkPWA();
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', checkPWA);
+    return () => window.matchMedia('(display-mode: standalone)').removeEventListener('change', checkPWA);
+  }, []);
+
   const enableLocation = () => {
     setIsLoadingLocation(true);
     if (!navigator.geolocation) return;
@@ -128,34 +140,38 @@ export function Hero() {
   };
 
   return (
-    <div className="relative w-full overflow-hidden bg-gradient-to-br from-background via-secondary/20 to-background pt-32 pb-24 md:pt-40 md:pb-32">
+    <div className={`relative w-full overflow-hidden bg-gradient-to-br from-background via-secondary/20 to-background ${isPWA ? 'pt-24 pb-12' : 'pt-32 pb-24 md:pt-40 md:pb-32'}`}>
       {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
-        <img src={heroBg} alt="" className="w-full h-full object-cover" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
-      </div>
+      {!isPWA && (
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
+          <img src={heroBg} alt="" className="w-full h-full object-cover" style={{ maskImage: 'linear-gradient(to left, black, transparent)' }} />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="items-center">
           <div className="max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-12"
-            >
-              <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-foreground tracking-tight leading-[1.1] mb-6">
-                The smartest way to find<br></br> <span className="text-primary">a lab or clinic</span>
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-                Discover verified labs and clinics, compare services, and book appointments in seconds. Get your reports online anytime.
-              </p>
-            </motion.div>
+            {!isPWA && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-12"
+              >
+                <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-foreground tracking-tight leading-[1.1] mb-6">
+                  The smartest way to find<br></br> <span className="text-primary">a lab or clinic</span>
+                </h1>
+                <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+                  Discover verified labs and clinics, compare services, and book appointments in seconds. Get your reports online anytime.
+                </p>
+              </motion.div>
+            )}
 
             {/* Search Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: isPWA ? 0 : 0.1 }}
               className="space-y-5"
             >
               {/* Main Search Box */}

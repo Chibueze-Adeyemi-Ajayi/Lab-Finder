@@ -61,7 +61,36 @@ export default function MapNavigation() {
     const tileLayerRef = useRef<any>(null);
     const routingControlRef = useRef<any>(null);
     const userMarkerRef = useRef<any>(null);
+    const watchIdRef = useRef<number | null>(null);
     const destination: [number, number] = [latParam, lngParam];
+    const [userAddress, setUserAddress] = useState<string | null>(null);
+    const [manualCoords, setManualCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [isManualOverride, setIsManualOverride] = useState(false);
+
+    const reverseGeocode = async (lat: number, lng: number) => {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+            if (!response.ok) throw new Error("Network response was not ok");
+            const data = await response.json();
+
+            if (data && data.display_name) {
+                const addr = data.address;
+                const shortAddress = [
+                    addr.road || addr.suburb,
+                    addr.city || addr.town || addr.village,
+                    addr.state
+                ].filter(Boolean).join(", ");
+                setUserAddress(shortAddress || data.display_name);
+                return true;
+            } else {
+                throw new Error("Could not find address for this location");
+            }
+        } catch (error) {
+            console.error("Reverse geocoding failed:", error);
+            alert("Error: We couldn't identify the address for this location. Please try another spot.");
+            return false;
+        }
+    };
 
     useEffect(() => {
         const libs = [
@@ -119,6 +148,10 @@ export default function MapNavigation() {
                 .addTo(map)
                 .bindPopup(`<div class="font-sans p-1"><b class="text-primary">${clinicName}</b><br/><span class="text-muted-foreground text-xs">Destination point</span></div>`);
 
+            map.on("click", (e: any) => {
+                handleManualLocationUpdate(e.latlng.lat, e.latlng.lng);
+            });
+
             setMapLoaded(true);
         }
 
@@ -129,6 +162,79 @@ export default function MapNavigation() {
             }
         };
     }, []);
+
+    const handleManualLocationUpdate = async (lat: number, lng: number) => {
+        if (!window.L || !mapRef.current) return;
+        const L = window.L;
+
+        // Stop automatic tracking
+        if (watchIdRef.current !== null) {
+            navigator.geolocation.clearWatch(watchIdRef.current);
+            watchIdRef.current = null;
+        }
+        setIsManualOverride(true);
+        setIsLocating(true);
+
+        const success = await reverseGeocode(lat, lng);
+        if (!success) {
+            setIsLocating(false);
+            return;
+        }
+
+        setManualCoords({ lat, lng });
+
+        // Update Marker
+        if (userMarkerRef.current) {
+            userMarkerRef.current.setLatLng([lat, lng]);
+        } else {
+            const userIcon = L.divIcon({
+                className: "user-location-marker",
+                html: `<div class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.5)] border-2 border-white animate-bounce-subtle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                       </div>`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+
+            userMarkerRef.current = L.marker([lat, lng], { icon: userIcon })
+                .addTo(mapRef.current)
+                .bindPopup("Your custom location");
+        }
+
+        // Update Route
+        if (routingControlRef.current) {
+            routingControlRef.current.setWaypoints([
+                L.latLng(lat, lng),
+                L.latLng(destination[0], destination[1])
+            ]);
+        } else {
+            const control = L.Routing.control({
+                waypoints: [
+                    L.latLng(lat, lng),
+                    L.latLng(destination[0], destination[1])
+                ],
+                routeWhileDragging: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                    styles: [{ color: '#3b82f6', weight: 6, opacity: 0.8 }]
+                },
+                show: false,
+                createMarker: () => null
+            }).addTo(mapRef.current);
+
+            control.on('routesfound', (e: any) => {
+                const routes = e.routes;
+                const summary = routes[0].summary;
+                calculateTimes(summary.totalDistance);
+            });
+
+            routingControlRef.current = control;
+        }
+
+        setIsLocating(false);
+    };
 
     // Handle Map Type Toggle
     useEffect(() => {
@@ -185,20 +291,24 @@ export default function MapNavigation() {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const L = window.L;
-                const userLat = pos.coords.latitude;
-                const userLng = pos.coords.longitude;
+        // Clear existing watch if any
+        if (watchIdRef.current !== null) {
+            navigator.geolocation.clearWatch(watchIdRef.current);
+        }
 
-                if (routingControlRef.current) {
-                    mapRef.current.removeControl(routingControlRef.current);
-                }
+        const updatePosition = (pos: GeolocationPosition) => {
+            const L = window.L;
+            const userLat = pos.coords.latitude;
+            const userLng = pos.coords.longitude;
 
-                if (userMarkerRef.current) {
-                    mapRef.current.removeLayer(userMarkerRef.current);
-                }
+            // Optional: Only reverse geocode once or infrequently to avoid API spam
+            if (!userAddress) {
+                reverseGeocode(userLat, userLng);
+            }
 
+            if (userMarkerRef.current) {
+                userMarkerRef.current.setLatLng([userLat, userLng]);
+            } else {
                 const userIcon = L.divIcon({
                     className: "user-location-marker",
                     html: `<div class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.5)] border-2 border-white animate-bounce-subtle">
@@ -211,7 +321,14 @@ export default function MapNavigation() {
                 userMarkerRef.current = L.marker([userLat, userLng], { icon: userIcon })
                     .addTo(mapRef.current)
                     .bindPopup("Your Location");
+            }
 
+            if (routingControlRef.current) {
+                routingControlRef.current.setWaypoints([
+                    L.latLng(userLat, userLng),
+                    L.latLng(destination[0], destination[1])
+                ]);
+            } else {
                 const control = L.Routing.control({
                     waypoints: [
                         L.latLng(userLat, userLng),
@@ -224,7 +341,7 @@ export default function MapNavigation() {
                     lineOptions: {
                         styles: [{ color: '#3b82f6', weight: 6, opacity: 0.8 }]
                     },
-                    show: false, // Hide the default instructions panel
+                    show: false,
                     createMarker: () => null
                 }).addTo(mapRef.current);
 
@@ -235,20 +352,36 @@ export default function MapNavigation() {
                 });
 
                 routingControlRef.current = control;
-                setIsLocating(false);
-            },
-            (err) => {
-                console.error(err);
-                alert("Please enable location permissions to find the route");
-                setIsLocating(false);
             }
-        );
+
+            setIsLocating(false);
+        };
+
+        const handleError = (err: GeolocationPositionError) => {
+            console.error(err);
+            // Only alert if initial load fails
+            if (isLocating) {
+                alert("Please enable location permissions to find the route");
+            }
+            setIsLocating(false);
+        };
+
+        watchIdRef.current = navigator.geolocation.watchPosition(updatePosition, handleError, {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+        });
     };
 
     useEffect(() => {
         if (mapLoaded && (latParam !== 0 || lngParam !== 0)) {
             handleGetRoute();
         }
+        return () => {
+            if (watchIdRef.current !== null) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+            }
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapLoaded, latParam, lngParam]);
 
@@ -318,27 +451,47 @@ export default function MapNavigation() {
 
                                 {!isMinimized && (
                                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                                        <div className="flex items-start gap-3 mb-6">
-                                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 border border-primary/20">
-                                                <MapPin className="w-6 h-6 text-primary" />
+                                        <div className="space-y-4 mb-6">
+                                            {/* User Origin */}
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shrink-0 border border-red-100">
+                                                    <Navigation className="w-5 h-5 text-red-600" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Your Location</span>
+                                                    <p className="text-sm font-medium text-foreground line-clamp-2">
+                                                        {userAddress || (isLocating ? "Detecting address..." : "Location detected")}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <h1 className="font-bold text-xl leading-snug text-foreground">{clinicName}</h1>
-                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                                                    <Navigation className="w-3 h-3 text-primary" />
-                                                    <span>Destination coordinates locked</span>
+
+                                            {/* Connector line */}
+                                            <div className="ml-5 w-px h-6 bg-border/60"></div>
+
+                                            {/* Destination */}
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 border border-primary/20">
+                                                    <MapPin className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">To Clinic</span>
+                                                    <p className="text-sm font-bold text-foreground line-clamp-2">{clinicName}</p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-2 mb-4">
                                             <Button
-                                                className="h-11 font-bold gap-2 shadow-lg shadow-primary/20 flex-1"
-                                                onClick={handleGetRoute}
+                                                className={`h-11 font-bold gap-2 shadow-lg flex-1 ${isManualOverride ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20'}`}
+                                                onClick={() => {
+                                                    setIsManualOverride(false);
+                                                    setManualCoords(null);
+                                                    handleGetRoute();
+                                                }}
                                                 disabled={isLocating || !mapLoaded}
                                             >
                                                 {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-                                                Get Route
+                                                {isManualOverride ? "Use Real GPS" : "Get Route"}
                                             </Button>
                                             <Button
                                                 variant="outline"
@@ -349,6 +502,15 @@ export default function MapNavigation() {
                                                 Pin Focus
                                             </Button>
                                         </div>
+
+                                        {isManualOverride && (
+                                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <p className="text-[10px] text-amber-800 font-bold uppercase tracking-wider mb-1">Manual Mode Active</p>
+                                                <p className="text-xs text-amber-700 leading-relaxed">
+                                                    You've manually set your start point. Real-time GPS tracking is paused. Tap "Use Real GPS" to restore tracking.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

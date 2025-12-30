@@ -1,4 +1,4 @@
-import { Star, MapPin, Clock, ArrowRight, PinIcon, LocateIcon, Phone as PhoneIcon } from "lucide-react";
+import { Star, MapPin, Clock, ArrowRight, PinIcon, LocateIcon, Phone as PhoneIcon, Navigation2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -86,7 +86,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
   return (
     <Card className="group overflow-hidden border-border/60 hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
       <Link href={`/clinic/${clinic._id || clinic.id}`} className="flex-1 flex flex-col cursor-pointer block">
-        <div className="relative h-48 overflow-hidden bg-secondary">
+        <div className="relative h-32 md:h-48 overflow-hidden bg-secondary">
           <img
             src={image}
             alt={clinic.name}
@@ -98,35 +98,35 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
           />
           <div className="absolute top-3 left-3">
             {isOpen ? (
-              <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm">Open Now</Badge>
+              <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm text-[10px] md:text-xs">Open Now</Badge>
             ) : (
-              <Badge variant="secondary" className="backdrop-blur-sm">Closed</Badge>
+              <Badge variant="secondary" className="backdrop-blur-sm text-[10px] md:text-xs">Closed</Badge>
             )}
           </div>
         </div>
 
-        <CardHeader className="p-5 pb-2">
+        <CardHeader className="p-3 md:p-5 pb-2">
           <div className="flex justify-between items-start mb-1">
-            <div className="flex items-center gap-1 text-amber-400 text-sm font-semibold">
-              <Star className="w-4 h-4 fill-current" />
+            <div className="flex items-center gap-1 text-amber-400 text-xs md:text-sm font-semibold">
+              <Star className="w-3 h-3 md:w-4 md:h-4 fill-current" />
               <span>{rating}</span>
               <span className="text-muted-foreground font-normal">({reviews})</span>
             </div>
-            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
+            <span className="text-[10px] md:text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
           </div>
-          <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
+          <h3 className="font-heading font-bold text-sm sm:text-base md:text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {clinic.name}
           </h3>
-          <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="line-clamp-1">{location}</span>
+          <div className="flex items-center gap-1 text-muted-foreground text-xs md:text-sm mt-1">
+            <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
+            <span className="line-clamp-1 text-[10px] md:text-sm">{location}</span>
           </div>
         </CardHeader>
 
-        <CardContent className="p-5 pt-3 flex-1">
-          <div className="flex flex-wrap gap-2">
+        <CardContent className="p-3 pt-0 md:p-5 md:pt-3 flex-1">
+          <div className="flex flex-wrap gap-1 md:gap-2">
             {tags.map((tag) => (
-              <span key={tag} className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-md border border-border">
+              <span key={tag} className="text-[10px] md:text-xs text-muted-foreground bg-secondary px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border border-border">
                 {tag}
               </span>
             ))}
@@ -134,10 +134,10 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
         </CardContent>
       </Link>
 
-      <CardFooter className="p-5 pt-0 flex gap-2 mt-auto">
+      <CardFooter className="p-3 md:p-5 pt-0 flex gap-2 mt-auto">
         {phoneNumber && (
           <Button
-            className={`${lat && lng ? 'w-12 h-10' : 'flex-1 h-10'} shrink-0 group/btn flex items-center justify-center p-0`}
+            className={`${lat && lng ? 'w-10 h-9 md:w-12 md:h-10' : 'flex-1 h-9 md:h-10'} shrink-0 group/btn flex items-center justify-center p-0`}
             variant="outline"
             onClick={() => window.location.href = `tel:${phoneNumber}`}
             title="Call Clinic"
@@ -150,8 +150,8 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
         {lat && lng ? (
           <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`} className="flex-1">
             <Button className="w-full h-10 group/btn flex items-center justify-center gap-2">
-              <span className="text-sm font-semibold whitespace-nowrap">Locate on Map</span>
-              <LocateIcon className="w-4 h-4 transform group-hover/btn:translate-x-0.5 transition-transform" />
+              <span className="text-sm font-semibold whitespace-nowrap">Direction</span>
+              <Target className="w-4 h-4 transform group-hover/btn:translate-x-0.5 transition-transform" />
             </Button>
           </Link>
         ) : !phoneNumber && (

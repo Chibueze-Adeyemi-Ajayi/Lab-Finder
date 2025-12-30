@@ -395,13 +395,13 @@ export default function FindLab() {
         {/* Results */}
         <div className="container mx-auto px-4 py-12">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
               {[1, 2, 3].map(i => (
-                <div key={i} className="h-96 bg-secondary/30 rounded-xl animate-pulse" />
+                <div key={i} className="h-48 md:h-96 bg-secondary/30 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : viewMode === "list" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
               {clinics.map((clinic: any) => (
                 <ClinicCard key={clinic.id || clinic._id || Math.random()} clinic={clinic} />
               ))}

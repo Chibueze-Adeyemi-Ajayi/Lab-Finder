@@ -4,7 +4,7 @@ import { toPublic } from "@/lib/api";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, Star, Clock, Info, Share2, Navigation, ArrowLeft, Loader2, Globe } from "lucide-react";
+import { MapPin, Phone, Star, Clock, Info, Share2, Navigation2, ArrowLeft, Loader2, Globe, Target } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function ClinicDetails() {
@@ -163,8 +163,8 @@ export default function ClinicDetails() {
                                 {lat && lng ? (
                                     <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`}>
                                         <Button variant="outline" className="w-full h-12 text-base border-primary/20 hover:bg-primary/5 text-primary">
-                                            <Navigation className="w-4 h-4 mr-2" />
-                                            Locate on Map
+                                            <Target className="w-4 h-4 mr-2" />
+                                            Direction
                                         </Button>
                                     </Link>
                                 ) : (

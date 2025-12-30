@@ -1,11 +1,29 @@
-import { Link } from "wouter";
-import { Beaker, Search, MapPin, Calendar, Menu } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Beaker, Search, MapPin, Calendar, Menu, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [location] = useLocation();
+  const isHome = location === "/";
+
+  const [isPWA, setIsPWA] = useState(false);
+
+  useEffect(() => {
+    const checkPWA = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+      setIsPWA(!!isStandalone);
+    };
+    checkPWA();
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', checkPWA);
+    return () => window.matchMedia('(display-mode: standalone)').removeEventListener('change', checkPWA);
+  }, []);
+
+  const handleBack = () => {
+    window.history.back();
+  };
 
   const NavItems = () => (
     <>
@@ -22,29 +40,44 @@ export function Header() {
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link href="/">
-          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0">
-            <span className="font-heading font-bold text-lg tracking-tight text-foreground whitespace-nowrap">
-              <span className="text-primary">Lab</span>NearMe
-            </span>
-          </div>
-        </Link>
+    <header className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/40 ${isPWA ? 'h-20 pt-4' : 'h-16'}`}>
+      <div className={`container mx-auto px-4 h-full flex items-center ${isPWA && isHome ? 'justify-center' : 'justify-between'} gap-4`}>
+        <div className={`flex items-center gap-2 ${isPWA && isHome ? 'flex-1 justify-center' : ''}`}>
+          {!isHome && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden -ml-2 mr-1 h-9 w-9 text-muted-foreground hover:text-primary"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-8 text-sm flex-1 justify-center">
-          <Link href="/find-lab">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Find a Lab</span>
+          {/* Logo */}
+          <Link href="/">
+            <div className="flex items-center gap-2 cursor-pointer flex-shrink-0">
+              <span className={`font-heading font-bold tracking-tight text-foreground whitespace-nowrap ${isPWA && isHome ? 'text-2xl' : 'text-lg'}`}>
+                <span className="text-primary">Lab</span>NearMe
+              </span>
+            </div>
           </Link>
-          <Link href="/for-clinics">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">For Clinics</span>
-          </Link>
-          <Link href="/help">
-            <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Help</span>
-          </Link>
-        </nav>
+        </div>
+
+        {/* Desktop Nav - Hide if centered logo and in PWA */}
+        {!isPWA && (
+          <nav className="hidden lg:flex items-center gap-8 text-sm flex-1 justify-center">
+            <Link href="/find-lab">
+              <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Find a Lab</span>
+            </Link>
+            <Link href="/for-clinics">
+              <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">For Clinics</span>
+            </Link>
+            <Link href="/help">
+              <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Help</span>
+            </Link>
+          </nav>
+        )}
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
