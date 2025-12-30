@@ -245,6 +245,13 @@ export default function MapNavigation() {
         );
     };
 
+    useEffect(() => {
+        if (mapLoaded && (latParam !== 0 || lngParam !== 0)) {
+            handleGetRoute();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mapLoaded, latParam, lngParam]);
+
     const focusClinic = () => {
         if (mapRef.current) {
             const target = userMarkerRef.current ? userMarkerRef.current.getLatLng() : destination;
