@@ -131,7 +131,9 @@ async function getIpAddress(): Promise<string | undefined> {
 // 4. Public
 export const toPublic = {
     searchClinics: async (params: { q?: string; radius?: number; skip?: number; limit?: number; lat?: number; lng?: number; location?: string } = {}) => {
+
         const queryParams = new URLSearchParams();
+
         if (params.q) queryParams.append("q", params.q);
         if (params.location) queryParams.append("location", params.location);
         if (params.radius) queryParams.append("radius", params.radius.toString());
@@ -142,10 +144,41 @@ export const toPublic = {
 
         // Add IP address to search params ONLY if cookie consent is accepted
         const consent = localStorage.getItem("cookie-consent");
+
         if (consent === "accepted") {
             const ip = await getIpAddress();
             if (ip) {
                 queryParams.append("ip_address", ip);
+            }
+        }
+
+        // Auto-detect user location for personalization (if permission granted)
+        if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+            try {
+                // Safely check for permissions API
+                const permissions = (navigator as any).permissions;
+                if (permissions && typeof permissions.query === "function") {
+                    const permission = await permissions.query({ name: "geolocation" });
+                    if (permission.state === "granted") {
+                        const coords = await new Promise<{ lat: number; lng: number } | null>((resolve) => {
+                            navigator.geolocation.getCurrentPosition(
+                                (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                                (err) => {
+                                    console.warn("Geolocation access failed despite permission:", err);
+                                    resolve(null);
+                                },
+                                { timeout: 3000, maximumAge: 300000 }
+                            );
+                        });
+
+                        if (coords) {
+                            queryParams.append("user_lat", coords.lat.toString());
+                            queryParams.append("user_lng", coords.lng.toString());
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Auto-location failed:", error);
             }
         }
 

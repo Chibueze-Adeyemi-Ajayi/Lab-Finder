@@ -2,23 +2,74 @@ import { Search, MapPin, Zap, Navigation, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import heroBg from "@assets/generated_images/clean_abstract_medical_background.png";
 import heroImage from "@assets/generated_images/modern_medical_lab_and_healthcare_services_illustration.png";
 
 export function Hero() {
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
-  const [distance, setDistance] = useState(5);
+  const queryClient = useQueryClient();
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [showProximity, setShowProximity] = useState(false); // Kept for legacy state if needed, but not displaying selector on Home anymore per request
 
   // Search Inputs
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+
+  // State for location prompt
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      // Check permission status
+      const permissions = (navigator as any).permissions;
+      if (permissions && typeof permissions.query === "function") {
+        permissions.query({ name: "geolocation" })
+          .then((result: any) => {
+            if (result.state === "prompt") {
+              setTimeout(() => setShowLocationPrompt(true), 1500); // Slight delay for better UX
+            }
+          })
+          .catch(() => {
+            // Ignore errors if permissions API fails
+          });
+      }
+    }
+  }, []);
+
+  const enableLocation = () => {
+    setIsLoadingLocation(true);
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLoadingLocation(false);
+        setShowLocationPrompt(false);
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+
+        // Reload home page results with new location data
+        queryClient.invalidateQueries({ queryKey: ["home-featured-clinics"] });
+
+        toast({
+          title: "Location Enabled",
+          description: "Great! Your search results will now be personalized based on your location."
+        });
+      },
+      (err) => {
+        setIsLoadingLocation(false);
+        console.error(err);
+        // Don't show error toast if they simply denied it, just close prompt
+        if (err.code === err.PERMISSION_DENIED) {
+          setShowLocationPrompt(false);
+        }
+      }
+    );
+  };
 
   const handleProximityClick = () => {
     setIsLoadingLocation(true);
@@ -137,6 +188,67 @@ export function Hero() {
                 </Button>
               </div>
 
+              {/* Location Prompt Banner */}
+              {showLocationPrompt && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex flex-col items-start gap-3 overflow-hidden"
+                >
+                  <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary/10 p-2 rounded-full hidden sm:block">
+                        <Navigation className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground">See results near you</p>
+                        <p className="text-xs text-muted-foreground">Enable location access to automatically find the closest labs.</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowLocationPrompt(false)}
+                      className="p-1.5 hover:bg-black/5 rounded-full text-muted-foreground transition-colors sm:hidden self-end absolute top-2 right-2"
+                      title="Dismiss"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setShowLocationPrompt(false)}
+                      className="p-1.5 hover:bg-black/5 rounded-full text-muted-foreground transition-colors hidden sm:block"
+                      title="Dismiss"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 pt-2 border-t border-primary/10">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="location-terms"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="location-terms" className="text-xs text-muted-foreground cursor-pointer select-none">
+                        I accept the <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
+                      </label>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={enableLocation}
+                      disabled={isLoadingLocation || !termsAccepted}
+                      variant="default"
+                      className="h-8 text-xs font-semibold shadow-none w-full sm:w-auto mt-2 sm:mt-0"
+                    >
+                      {isLoadingLocation ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                      Enable Location
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Just the Proximity Button (No visible selector on home anymore per request) */}
               <div className="space-y-3">
                 <Button
@@ -174,6 +286,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
