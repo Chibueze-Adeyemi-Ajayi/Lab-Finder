@@ -85,52 +85,54 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
 
   return (
     <Card className="group overflow-hidden border-border/60 hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
-      <div className="relative h-48 overflow-hidden bg-secondary">
-        <img
-          src={image}
-          alt={clinic.name}
-          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => {
-            // Fallback if image load fails
-            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800";
-          }}
-        />
-        <div className="absolute top-3 left-3">
-          {isOpen ? (
-            <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm">Open Now</Badge>
-          ) : (
-            <Badge variant="secondary" className="backdrop-blur-sm">Closed</Badge>
-          )}
-        </div>
-      </div>
-
-      <CardHeader className="p-5 pb-2">
-        <div className="flex justify-between items-start mb-1">
-          <div className="flex items-center gap-1 text-amber-400 text-sm font-semibold">
-            <Star className="w-4 h-4 fill-current" />
-            <span>{rating}</span>
-            <span className="text-muted-foreground font-normal">({reviews})</span>
+      <Link href={`/clinic/${clinic._id || clinic.id}`} className="flex-1 flex flex-col cursor-pointer block">
+        <div className="relative h-48 overflow-hidden bg-secondary">
+          <img
+            src={image}
+            alt={clinic.name}
+            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              // Fallback if image load fails
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800";
+            }}
+          />
+          <div className="absolute top-3 left-3">
+            {isOpen ? (
+              <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm">Open Now</Badge>
+            ) : (
+              <Badge variant="secondary" className="backdrop-blur-sm">Closed</Badge>
+            )}
           </div>
-          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
         </div>
-        <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
-          {clinic.name}
-        </h3>
-        <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
-          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="line-clamp-1">{location}</span>
-        </div>
-      </CardHeader>
 
-      <CardContent className="p-5 pt-3 flex-1">
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <span key={tag} className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-md border border-border">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </CardContent>
+        <CardHeader className="p-5 pb-2">
+          <div className="flex justify-between items-start mb-1">
+            <div className="flex items-center gap-1 text-amber-400 text-sm font-semibold">
+              <Star className="w-4 h-4 fill-current" />
+              <span>{rating}</span>
+              <span className="text-muted-foreground font-normal">({reviews})</span>
+            </div>
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
+          </div>
+          <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
+            {clinic.name}
+          </h3>
+          <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="line-clamp-1">{location}</span>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-5 pt-3 flex-1">
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <span key={tag} className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-md border border-border">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </CardContent>
+      </Link>
 
       <CardFooter className="p-5 pt-0 flex gap-2 mt-auto">
         {phoneNumber && (

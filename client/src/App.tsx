@@ -15,13 +15,16 @@ import LearnMore from "@/pages/LearnMore";
 import MapNavigation from "@/pages/MapNavigation";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
+
 import Contact from "@/pages/Contact";
+import ClinicDetails from "@/pages/ClinicDetails";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/find-lab" component={FindLab} />
+      <Route path="/clinic/:id" component={ClinicDetails} />
       <Route path="/for-clinics" component={ClinicSignup} />
       <Route path="/signin" component={SignIn} />
       <Route path="/user/dashboard" component={UserDashboard} />
@@ -39,6 +42,7 @@ function Router() {
 
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { PWAInstallPrompt } from "@/components/layout/PWAInstallPrompt";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
 function App() {
   return (
@@ -46,8 +50,10 @@ function App() {
       <TooltipProvider>
         <Router />
         <Toaster />
+
         <CookieConsent />
         <PWAInstallPrompt />
+        <MobileBottomNav />
       </TooltipProvider>
     </QueryClientProvider>
   );

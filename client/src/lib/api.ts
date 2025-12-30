@@ -142,17 +142,7 @@ export const toPublic = {
         if (params.lat !== undefined) queryParams.append("lat", params.lat.toString());
         if (params.lng !== undefined) queryParams.append("lng", params.lng.toString());
 
-        // Add IP address to search params ONLY if cookie consent is accepted
-        const consent = localStorage.getItem("cookie-consent");
-
-        if (consent === "accepted") {
-            const ip = await getIpAddress();
-            if (ip) {
-                queryParams.append("ip_address", ip);
-            }
-        }
-
-        // Auto-detect user location for personalization (if permission granted)
+        // 1. Auto-detect user location for personalization (if permission granted)
         if (typeof navigator !== "undefined" && "geolocation" in navigator) {
             try {
                 // Safely check for permissions API
@@ -182,8 +172,18 @@ export const toPublic = {
             }
         }
 
+        // 2. Add IP address to search params ONLY if cookie consent is accepted
+        const consent = localStorage.getItem("cookie-consent");
+        if (consent === "accepted") {
+            const ip = await getIpAddress();
+            if (ip) {
+                queryParams.append("ip_address", ip);
+            }
+        }
+
         return fetchApi(`/clinics/public/search?${queryParams.toString()}`);
     },
+    getClinic: (id: string) => fetchApi(`/clinics/public/${id}`),
     sendContact: (data: { first_name: string; last_name?: string; email: string; message: string }) =>
         fetchApi("/contact", { method: "POST", body: data }),
 };

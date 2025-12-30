@@ -56,8 +56,8 @@ export function Header() {
           </Link> */}
         </div>
 
-        {/* Tablet & Mobile Menu */}
-        <div className="lg:hidden flex items-center">
+        {/* Tablet & Mobile Menu - Hidden entirely as we now use Bottom Nav on mobile */}
+        <div className="hidden flex items-center">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
