@@ -3,7 +3,7 @@ import { ClinicCard } from "@/components/home/ClinicCard";
 import { MapView } from "@/components/home/MapView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Map, List, Building2, Star, Navigation, Loader2, X, ChevronDown, ChevronUp, Filter } from "lucide-react";
+import { Search, MapPin, Map, List, Building2, Star, Navigation, Loader2, X, ChevronDown, ChevronUp, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toPublic, toPatients, getToken } from "@/lib/api";
@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const DISTANCE_OPTIONS = [5, 10, 15, 20, 50, 100];
+const ITEMS_PER_PAGE = 12;
 
 export default function FindLab() {
   const [locationPath, setLocationPath] = useLocation();
@@ -57,6 +58,9 @@ export default function FindLab() {
 
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [bookingClinicId, setBookingClinicId] = useState<string | null>(null);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Booking Form State
   const [serviceName, setServiceName] = useState("");
@@ -144,6 +148,7 @@ export default function FindLab() {
     // Immediate update of debounced values to trigger query instantly
     setDebouncedSearch(search);
     setDebouncedLocation(location);
+    setCurrentPage(1); // Reset to first page on new search
 
     const params = new URLSearchParams();
     if (search) params.append("q", search);
@@ -157,14 +162,17 @@ export default function FindLab() {
   };
 
   const { data: clinicsData, isLoading, isFetching } = useQuery({
-    queryKey: ["clinics-search", debouncedSearch, debouncedLocation, selectedDistance, userLat, userLng],
+    queryKey: ["clinics-search", debouncedSearch, debouncedLocation, selectedDistance, userLat, userLng, currentPage],
     queryFn: async () => {
+      const skip = (currentPage - 1) * ITEMS_PER_PAGE;
       const res = await toPublic.searchClinics({
         q: debouncedSearch,
         location: debouncedLocation,
         radius: selectedDistance,
         lat: userLat ? parseFloat(userLat) : undefined,
-        lng: userLng ? parseFloat(userLng) : undefined
+        lng: userLng ? parseFloat(userLng) : undefined,
+        skip,
+        limit: ITEMS_PER_PAGE
       });
       return res;
     },
@@ -173,6 +181,8 @@ export default function FindLab() {
   });
 
   const clinics = Array.isArray(clinicsData) ? clinicsData : (clinicsData?.items || clinicsData?.data || []);
+  const totalCount = clinicsData?.total || clinics.length;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const createRequestMutation = useMutation({
     mutationFn: (data: FormData) => toPatients.createRequest(data),
@@ -406,6 +416,75 @@ export default function FindLab() {
           ) : (
             <div className="h-[600px] bg-muted rounded-2xl flex items-center justify-center border-2 border-dashed border-border overflow-hidden">
               <MapView clinics={clinics} selectedDistance={selectedDistance} userLocation={userLat && userLng ? { lat: parseFloat(userLat), lng: parseFloat(userLng) } : undefined} />
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!isLoading && clinics.length > 0 && totalPages > 1 && (
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pb-8">
+              <div className="text-sm text-muted-foreground">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} labs
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === 1 || isFetching}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setCurrentPage(pageNum);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={isFetching}
+                        className="w-10 h-10 p-0"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === totalPages || isFetching}
+                  className="gap-2"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           )}
         </div>

@@ -276,7 +276,7 @@ export default function MapNavigation() {
                                                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
                                             </Button>
                                         </AlertDialogTrigger>
-                                        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-2xl">
+                                        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full sm:max-w-md rounded-2xl z-[9999]">
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle className="flex items-center gap-2">
                                                     <Info className="w-5 h-5 text-primary" />

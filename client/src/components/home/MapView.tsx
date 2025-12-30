@@ -139,6 +139,10 @@ export function MapView({ clinics, selectedDistance = 5, userLocation }: MapView
           ? `${clinic.address.street_address || ''}, ${clinic.address.city || ''}`
           : (clinic.address || clinic.location || "Address not specified");
 
+        // Extract phone number
+        const phone = clinic.phone || clinic.contact_phone || clinic.contact?.phone || "";
+        const phoneDisplay = phone || "Not available";
+
         const clinicIcon = L.divIcon({
           className: "clinic-marker",
           html: `<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform">
@@ -149,9 +153,9 @@ export function MapView({ clinics, selectedDistance = 5, userLocation }: MapView
         });
 
         const popupContent = `
-          <div class="p-1 max-w-[200px] font-sans">
+          <div class="p-2 max-w-[240px] font-sans">
             <div class="h-24 w-full mb-2 rounded-lg overflow-hidden bg-muted">
-              <img src="${image}" class="w-full h-full object-cover" />
+              <img src="${image}" class="w-full h-full object-cover" alt="${clinic.name}" />
             </div>
             <h3 class="font-bold text-sm text-foreground line-clamp-1">${clinic.name}</h3>
             <p class="text-[11px] text-muted-foreground mt-1 line-clamp-2">${address}</p>
@@ -159,12 +163,38 @@ export function MapView({ clinics, selectedDistance = 5, userLocation }: MapView
               <span class="bg-primary/10 px-1.5 py-0.5 rounded">★ ${clinic.rating || 4.5}</span>
               <span class="bg-primary/10 px-1.5 py-0.5 rounded">${clinic.distance || 'Nearby'}</span>
             </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <a 
+                href="tel:${phone}" 
+                class="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[11px] font-semibold transition-colors no-underline ${!phone ? 'opacity-50 pointer-events-none' : ''}"
+                ${!phone ? 'onclick="return false;"' : ''}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                <span>Call</span>
+              </a>
+              
+              <a 
+                href="/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}" 
+                class="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-[11px] font-semibold transition-colors no-underline"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+                <span>Directions</span>
+              </a>
+            </div>
+            
+            ${!phone ? '<p class="text-[9px] text-muted-foreground mt-1.5 text-center">Phone number not available</p>' : ''}
           </div>
         `;
 
         const marker = L.marker([lat, lng], { icon: clinicIcon })
           .addTo(mapRef.current)
-          .bindPopup(popupContent, { minWidth: 200 });
+          .bindPopup(popupContent, { minWidth: 240, maxWidth: 240 });
 
         markersRef.current.push(marker);
       }
@@ -225,13 +255,19 @@ export function MapView({ clinics, selectedDistance = 5, userLocation }: MapView
         }
         .leaflet-popup-content {
           margin: 0 !important;
-          width: 200px !important;
+          width: 240px !important;
         }
         .leaflet-popup-tip-container {
           display: none !important;
         }
         .leaflet-container {
           font-family: inherit !important;
+        }
+        .leaflet-popup a {
+          text-decoration: none !important;
+        }
+        .leaflet-popup a:hover {
+          opacity: 0.9;
         }
       `}</style>
     </div>
