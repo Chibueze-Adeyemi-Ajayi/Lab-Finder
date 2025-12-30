@@ -106,7 +106,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
 
           {/* Mobile Quick Action - Direction */}
           {lat && lng && (
-            <div className="absolute top-3 right-3 md:hidden">
+            <div className="absolute top-3 right-3 hidden md:block">
               <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`}>
                 <Button size="icon" className="w-8 h-8 rounded-full shadow-lg bg-white/90 hover:bg-white text-primary border-0 backdrop-blur-sm">
                   <Target className="w-4 h-4" />
@@ -119,7 +119,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
         <CardHeader className="p-2 md:p-5 pb-1 md:pb-2">
           <div className="flex justify-between items-start mb-1">
             <div className="flex items-center gap-1 text-amber-400 text-[10px] md:text-sm font-semibold">
-              <Star className="w-2.5 h-2.5 md:w-4 md:h-4 fill-current" />
+              <Star className="w-2.5 h-2.5 md:w-4 md:h-4 fill-current hidden md:block" />
               <span>{rating}</span>
               <span className="text-muted-foreground font-normal">({reviews})</span>
             </div>
@@ -129,7 +129,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
             {clinic.name}
           </h3>
           <div className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-sm mt-0.5">
-            <MapPin className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 flex-shrink-0" />
+            <MapPin className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 flex-shrink-0 hidden md:block" />
             <span className="line-clamp-1">{location}</span>
           </div>
         </CardHeader>
@@ -151,7 +151,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
       <CardFooter className="p-2 md:p-5 pt-0 flex gap-2 mt-auto">
         {phoneNumber && (
           <Button
-            className={`${lat && lng ? 'w-8 h-8 md:w-12 md:h-10' : 'flex-1 h-8 md:h-10'} shrink-0 group/btn flex items-center justify-center p-0 rounded-lg`}
+            className="flex-1 h-8 md:h-10 shrink-0 group/btn flex items-center justify-center p-0 rounded-lg"
             variant="outline"
             onClick={(e) => {
               e.preventDefault();
@@ -160,22 +160,22 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
             }}
             title="Call Clinic"
           >
-            <PhoneIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
-            {!(lat && lng) && <span className="ml-2 font-semibold text-sm">Contact</span>}
+            <PhoneIcon className="w-3.5 h-3.5 md:w-4 md:h-4 hidden md:block" />
+            <span className="md:ml-2 font-semibold text-xs md:text-sm">Contact</span>
           </Button>
         )}
 
         {lat && lng ? (
           <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`} className="flex-1">
             <Button className="w-full h-8 md:h-10 group/btn flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 rounded-lg">
-              <span className="hidden md:inline text-sm font-semibold whitespace-nowrap">Direction</span>
-              <Target className="w-3.5 h-3.5 md:w-4 md:h-4 transform group-hover/btn:translate-x-0.5 transition-transform" />
+              <span className="text-xs md:text-sm font-semibold whitespace-nowrap">Direction</span>
+              <Target className="w-3.5 h-3.5 md:w-4 md:h-4 transform group-hover/btn:translate-x-0.5 transition-transform hidden md:block" />
             </Button>
           </Link>
         ) : !phoneNumber && (
           <Button className="flex-1 h-8 md:h-10 group/btn flex items-center justify-center gap-2 rounded-lg" disabled>
             <span className="text-xs md:text-sm">No Location</span>
-            <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-50" />
+            <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-50 hidden md:block" />
           </Button>
         )}
       </CardFooter>
