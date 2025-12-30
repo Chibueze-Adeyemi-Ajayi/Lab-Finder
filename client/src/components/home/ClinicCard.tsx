@@ -103,61 +103,79 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
               <Badge variant="secondary" className="backdrop-blur-sm text-[10px] md:text-xs">Closed</Badge>
             )}
           </div>
+
+          {/* Mobile Quick Action - Direction */}
+          {lat && lng && (
+            <div className="absolute top-3 right-3 md:hidden">
+              <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`}>
+                <Button size="icon" className="w-8 h-8 rounded-full shadow-lg bg-white/90 hover:bg-white text-primary border-0 backdrop-blur-sm">
+                  <Target className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
-        <CardHeader className="p-3 md:p-5 pb-2">
+        <CardHeader className="p-2 md:p-5 pb-1 md:pb-2">
           <div className="flex justify-between items-start mb-1">
-            <div className="flex items-center gap-1 text-amber-400 text-xs md:text-sm font-semibold">
-              <Star className="w-3 h-3 md:w-4 md:h-4 fill-current" />
+            <div className="flex items-center gap-1 text-amber-400 text-[10px] md:text-sm font-semibold">
+              <Star className="w-2.5 h-2.5 md:w-4 md:h-4 fill-current" />
               <span>{rating}</span>
               <span className="text-muted-foreground font-normal">({reviews})</span>
             </div>
-            <span className="text-[10px] md:text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">{distanceLabel}</span>
+            <span className="text-[9px] md:text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100/50">{distanceLabel}</span>
           </div>
-          <h3 className="font-heading font-bold text-sm sm:text-base md:text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
+          <h3 className="font-heading font-bold text-xs sm:text-base md:text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {clinic.name}
           </h3>
-          <div className="flex items-center gap-1 text-muted-foreground text-xs md:text-sm mt-1">
-            <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
-            <span className="line-clamp-1 text-[10px] md:text-sm">{location}</span>
+          <div className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-sm mt-0.5">
+            <MapPin className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 flex-shrink-0" />
+            <span className="line-clamp-1">{location}</span>
           </div>
         </CardHeader>
 
-        <CardContent className="p-3 pt-0 md:p-5 md:pt-3 flex-1">
-          <div className="flex flex-wrap gap-1 md:gap-2">
-            {tags.map((tag) => (
-              <span key={tag} className="text-[10px] md:text-xs text-muted-foreground bg-secondary px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border border-border">
+        <CardContent className="p-2 pt-0 md:p-5 md:pt-3 flex-1">
+          <div className="flex flex-wrap gap-1">
+            {tags.slice(0, 2).map((tag) => (
+              <span key={tag} className="text-[9px] md:text-xs text-muted-foreground bg-secondary px-1 py-0.5 rounded border border-border/50">
                 {tag}
               </span>
             ))}
+            {tags.length > 2 && (
+              <span className="text-[9px] md:text-xs text-muted-foreground/60 px-1 py-0.5">+{tags.length - 2}</span>
+            )}
           </div>
         </CardContent>
       </Link>
 
-      <CardFooter className="p-3 md:p-5 pt-0 flex gap-2 mt-auto">
+      <CardFooter className="p-2 md:p-5 pt-0 flex gap-2 mt-auto">
         {phoneNumber && (
           <Button
-            className={`${lat && lng ? 'w-10 h-9 md:w-12 md:h-10' : 'flex-1 h-9 md:h-10'} shrink-0 group/btn flex items-center justify-center p-0`}
+            className={`${lat && lng ? 'w-8 h-8 md:w-12 md:h-10' : 'flex-1 h-8 md:h-10'} shrink-0 group/btn flex items-center justify-center p-0 rounded-lg`}
             variant="outline"
-            onClick={() => window.location.href = `tel:${phoneNumber}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = `tel:${phoneNumber}`;
+            }}
             title="Call Clinic"
           >
-            <PhoneIcon className="w-4 h-4" />
+            <PhoneIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
             {!(lat && lng) && <span className="ml-2 font-semibold text-sm">Contact</span>}
           </Button>
         )}
 
         {lat && lng ? (
           <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`} className="flex-1">
-            <Button className="w-full h-10 group/btn flex items-center justify-center gap-2">
-              <span className="text-sm font-semibold whitespace-nowrap">Direction</span>
-              <Target className="w-4 h-4 transform group-hover/btn:translate-x-0.5 transition-transform" />
+            <Button className="w-full h-8 md:h-10 group/btn flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 rounded-lg">
+              <span className="hidden md:inline text-sm font-semibold whitespace-nowrap">Direction</span>
+              <Target className="w-3.5 h-3.5 md:w-4 md:h-4 transform group-hover/btn:translate-x-0.5 transition-transform" />
             </Button>
           </Link>
         ) : !phoneNumber && (
-          <Button className="flex-1 h-10 group/btn flex items-center justify-center gap-2" disabled>
-            <span className="text-sm">No Location Info</span>
-            <MapPin className="w-4 h-4 opacity-50" />
+          <Button className="flex-1 h-8 md:h-10 group/btn flex items-center justify-center gap-2 rounded-lg" disabled>
+            <span className="text-xs md:text-sm">No Location</span>
+            <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-50" />
           </Button>
         )}
       </CardFooter>
