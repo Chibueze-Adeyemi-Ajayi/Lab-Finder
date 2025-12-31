@@ -15,7 +15,7 @@ export function PWAInstallPrompt() {
             return;
         }
 
-        const handleBeforeInstallPrompt = (e: Event) => {
+        const handleBeforeInstallPrompt = (e: any) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Stash the event so it can be triggered later.
@@ -79,6 +79,7 @@ export function PWAInstallPrompt() {
     return (
         <AnimatePresence>
             <motion.div
+                key="desktop-prompt"
                 initial={{ x: -100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -100, opacity: 0 }}
@@ -105,9 +106,11 @@ export function PWAInstallPrompt() {
 
             {/* Mobile Version (Bottom Bar) */}
             <motion.div
+                key="mobile-prompt"
                 initial={{ y: 100 }}
                 animate={{ y: 0 }}
-                className="fixed bottom-0 left-0 right-0 z-[110] md:hidden bg-primary text-primary-foreground p-4 flex items-center justify-between border-t border-white/10"
+                exit={{ y: 100 }}
+                className="fixed bottom-16 left-0 right-0 z-[110] md:hidden bg-primary text-primary-foreground p-4 flex items-center justify-between border-t border-white/10"
             >
                 <div className="flex items-center gap-3">
                     <Smartphone className="w-5 h-5" />

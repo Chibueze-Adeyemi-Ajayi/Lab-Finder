@@ -27,7 +27,7 @@ export function CookieConsent() {
                     initial={{ y: 100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
-                    className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:max-w-md z-[100]"
+                    className="fixed bottom-20 left-6 right-6 md:left-auto md:right-6 md:max-w-md md:bottom-6 z-[100]"
                 >
                     <div className="bg-white rounded-2xl shadow-2xl border border-primary/10 p-6 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-full bg-primary" />

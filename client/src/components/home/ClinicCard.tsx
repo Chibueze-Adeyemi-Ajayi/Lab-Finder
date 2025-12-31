@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Clock, ArrowRight, PinIcon, LocateIcon, Phone as PhoneIcon, Navigation2, Target } from "lucide-react";
+import { Star, MapPin, Phone as PhoneIcon, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -30,12 +30,14 @@ interface ClinicProps {
   is_online?: boolean; // API field
   phone_number?: string;
   phone?: string;
+  verified?: boolean;
 }
 
 export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
   // Normalize Props
   const rating = clinic.rating ?? clinic.average_rating ?? 0;
   const reviews = clinic.reviews ?? clinic.total_ratings ?? 0;
+  const isVerified = clinic.verified ?? false;
 
   // Handle nested address object vs string vs location coords
   let displayAddress = "Location available on map";
@@ -66,11 +68,13 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
     if (!dist || !hasLocationAccess) return null;
 
     let numericDist: number;
+    // Check if it's a string (e.g., "5.2 km") or raw number (meters)
     if (typeof dist === 'string') {
       // Parse number from string like "5.2 km" or "10"
       numericDist = parseFloat(dist.replace(/[^\d.]/g, ''));
     } else {
-      numericDist = dist;
+      // API usually returns meters for raw numbers, convert to km
+      numericDist = dist / 1000;
     }
 
     if (isNaN(numericDist)) return null;
@@ -107,22 +111,35 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800";
             }}
           />
-          <div className="absolute top-3 left-3">
-            {isOpen ? (
-              <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm text-[10px] md:text-xs">Open Now</Badge>
-            ) : (
-              <Badge variant="secondary" className="backdrop-blur-sm text-[10px] md:text-xs">Closed</Badge>
-            )}
+          <div className="absolute top-3 left-3 flex flex-col gap-1">
+            <div className="flex gap-2">
+              {isOpen ? (
+                <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0 backdrop-blur-sm text-[10px] md:text-xs">Open Now</Badge>
+              ) : (
+                <Badge variant="secondary" className="backdrop-blur-sm text-[10px] md:text-xs">Closed</Badge>
+              )}
+              {!isVerified && (
+                <Badge variant="destructive" className="hidden bg-red-500/90 hover:bg-red-500 text-white border-0 backdrop-blur-sm text-[10px] md:text-xs">
+                  Unverified
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Mobile Quick Action - Direction */}
           {lat && lng && (
             <div className="absolute top-3 right-3 hidden md:block">
-              <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`}>
-                <Button size="icon" className="w-8 h-8 rounded-full shadow-lg bg-white/90 hover:bg-white text-primary border-0 backdrop-blur-sm">
-                  <Target className="w-4 h-4" />
-                </Button>
-              </Link>
+              <Button
+                size="icon"
+                className="w-8 h-8 rounded-full shadow-lg bg-white/90 hover:bg-white text-primary border-0 backdrop-blur-sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`;
+                }}
+              >
+                <Target className="w-4 h-4" />
+              </Button>
             </div>
           )}
         </div>
