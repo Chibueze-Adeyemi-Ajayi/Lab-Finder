@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { cacheLocation } from "@/lib/locationCache";
 import heroBg from "@assets/generated_images/clean_abstract_medical_background.png";
 import heroImage from "@assets/generated_images/modern_medical_lab_and_healthcare_services_illustration.png";
 
@@ -62,7 +63,11 @@ export function Hero() {
       (pos) => {
         setIsLoadingLocation(false);
         setShowLocationPrompt(false);
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(coords);
+
+        // Cache the location
+        cacheLocation(coords.lat, coords.lng);
 
         // Reload home page results with new location data
         queryClient.invalidateQueries({ queryKey: ["home-featured-clinics"] });
@@ -101,6 +106,10 @@ export function Hero() {
         const lng = position.coords.longitude;
 
         setCoords({ lat, lng });
+
+        // Cache the location
+        cacheLocation(lat, lng);
+
         setIsLoadingLocation(false);
 
         toast({

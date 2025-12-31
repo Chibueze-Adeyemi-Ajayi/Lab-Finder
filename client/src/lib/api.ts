@@ -130,7 +130,7 @@ async function getIpAddress(): Promise<string | undefined> {
 
 // 4. Public
 export const toPublic = {
-    searchClinics: async (params: { q?: string; radius?: number; skip?: number; limit?: number; lat?: number; lng?: number; location?: string } = {}) => {
+    searchClinics: async (params: { q?: string; radius?: number; skip?: number; limit?: number; user_lat?: number; user_lng?: number; location?: string } = {}) => {
 
         const queryParams = new URLSearchParams();
 
@@ -139,8 +139,8 @@ export const toPublic = {
         if (params.radius) queryParams.append("radius", params.radius.toString());
         if (params.skip !== undefined) queryParams.append("skip", params.skip.toString());
         if (params.limit !== undefined) queryParams.append("limit", params.limit.toString());
-        if (params.lat !== undefined) queryParams.append("lat", params.lat.toString());
-        if (params.lng !== undefined) queryParams.append("lng", params.lng.toString());
+        if (params.user_lat !== undefined) queryParams.append("user_lat", params.user_lat.toString());
+        if (params.user_lng !== undefined) queryParams.append("user_lng", params.user_lng.toString());
 
         // 1. Auto-detect user location for personalization (if permission granted)
         if (typeof navigator !== "undefined" && "geolocation" in navigator) {

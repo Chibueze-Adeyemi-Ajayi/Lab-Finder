@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { Hero } from "@/components/home/Hero";
 import { useQuery } from "@tanstack/react-query";
 import { toPublic } from "@/lib/api";
+import { getCachedLocation, requestAndCacheLocation, cacheLocation } from "@/lib/locationCache";
 
 import { useState, useEffect } from "react";
 
@@ -13,6 +14,7 @@ export default function Home() {
   const [isPWA, setIsPWA] = useState(false);
   const [hasLocationAccess, setHasLocationAccess] = useState(false);
   const [hasCookieConsent, setHasCookieConsent] = useState(false);
+  const [userCoords, setUserCoords] = useState<{ user_lat: number; user_lng: number } | null>(null);
 
   useEffect(() => {
     const checkPWA = () => {
@@ -30,26 +32,61 @@ export default function Home() {
     const consent = localStorage.getItem("cookie-consent");
     setHasCookieConsent(consent === "accepted");
 
-    // Check location permission
+    // Check location permission and load cached/fresh location
     if (typeof navigator !== "undefined" && navigator.permissions) {
       navigator.permissions.query({ name: "geolocation" as PermissionName }).then(status => {
-        setHasLocationAccess(status.state === "granted");
-        status.onchange = () => setHasLocationAccess(status.state === "granted");
+        const isGranted = status.state === "granted";
+        setHasLocationAccess(isGranted);
+
+        if (isGranted) {
+          // First, try to load from cache
+          const cached = getCachedLocation();
+          if (cached) {
+            setUserCoords(cached);
+          }
+
+          // Then request fresh location and update cache
+          requestAndCacheLocation()
+            .then(coords => {
+              setUserCoords(coords);
+            })
+            .catch(err => {
+              console.error('Failed to get fresh location:', err);
+              // Keep using cached location if fresh request fails
+            });
+        }
+
+        status.onchange = () => {
+          const newGranted = status.state === "granted";
+          setHasLocationAccess(newGranted);
+
+          if (newGranted) {
+            requestAndCacheLocation()
+              .then(coords => setUserCoords(coords))
+              .catch(err => console.error('Failed to get location:', err));
+          } else {
+            setUserCoords(null);
+          }
+        };
       });
     }
   }, []);
 
-  // Fetch Top Clinics
-  // Using searchClinics with a default broad query or 'General'
-  // Ideally, valid real-world apps might have a dedicated 'featured' endpoint, but search works.
+  // Fetch Top Clinics with location if available
   const { data: clinicsData = [], isLoading } = useQuery({
-    queryKey: ["home-featured-clinics"],
+    queryKey: ["home-featured-clinics", userCoords?.user_lat, userCoords?.user_lng],
     queryFn: async () => {
-      // Load all clinics by default with skip/limit, other params empty as requested
-      const res = await toPublic.searchClinics({ limit: 10, skip: 0 });
-      // The API return format is likely { items: [], total: ... } or just [] based on user snippet
-      // User snippet shows: { items: [...], total: ... }
-      // So ensuring we extract items
+      const params: any = { limit: 10, skip: 0 };
+
+      // Add location parameters if available
+      if (userCoords) {
+        params.user_lat = userCoords.user_lat;
+        params.user_lng = userCoords.user_lng;
+        params.radius = 20; // Default radius for home page
+      }
+
+      const res = await toPublic.searchClinics(params);
+
       if (res && res.items && Array.isArray(res.items)) {
         return res.items;
       }
