@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Star, MapPin, Clock, ArrowRight, PinIcon, LocateIcon, Phone as PhoneIcon, Navigation2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +52,18 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
   const tags = clinic.tags ?? clinic.services?.slice(0, 3) ?? [];
   const image = clinic.image ?? clinic.images?.[0] ?? "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800";
   const isOpen = clinic.isOpen ?? clinic.is_online ?? false;
+  const [hasLocationAccess, setHasLocationAccess] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions) return;
+    navigator.permissions.query({ name: "geolocation" as PermissionName }).then(status => {
+      setHasLocationAccess(status.state === "granted");
+      status.onchange = () => setHasLocationAccess(status.state === "granted");
+    });
+  }, []);
+
   const getDistanceLabel = (dist?: string | number) => {
-    if (!dist) return "Near You";
+    if (!dist || !hasLocationAccess) return null;
 
     let numericDist: number;
     if (typeof dist === 'string') {
@@ -62,7 +73,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
       numericDist = dist;
     }
 
-    if (isNaN(numericDist)) return dist.toString();
+    if (isNaN(numericDist)) return null;
 
     if (numericDist < 5) return "Near";
     if (numericDist < 10) return "Fairly far";
@@ -123,7 +134,11 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
               <span>{rating}</span>
               <span className="text-muted-foreground font-normal">({reviews})</span>
             </div>
-            <span className="text-[9px] md:text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100/50">{distanceLabel}</span>
+            {distanceLabel && (
+              <span className="text-[9px] md:text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100/50">
+                {distanceLabel}
+              </span>
+            )}
           </div>
           <h3 className="font-heading font-bold text-xs sm:text-base md:text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {clinic.name}
@@ -151,7 +166,8 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
       <CardFooter className="p-2 md:p-5 pt-0 flex gap-2 mt-auto">
         {phoneNumber && (
           <Button
-            className="flex-1 h-8 md:h-10 shrink-0 group/btn flex items-center justify-center p-0 rounded-lg"
+            size="icon"
+            className="h-8 w-8 md:h-10 md:w-10 shrink-0 rounded-lg"
             variant="outline"
             onClick={(e) => {
               e.preventDefault();
@@ -160,8 +176,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
             }}
             title="Call Clinic"
           >
-            <PhoneIcon className="w-3.5 h-3.5 md:w-4 md:h-4 hidden md:block" />
-            <span className="md:ml-2 font-semibold text-xs md:text-sm">Contact</span>
+            <PhoneIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
           </Button>
         )}
 

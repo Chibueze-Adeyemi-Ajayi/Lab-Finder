@@ -11,6 +11,8 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [isPWA, setIsPWA] = useState(false);
+  const [hasLocationAccess, setHasLocationAccess] = useState(false);
+  const [hasCookieConsent, setHasCookieConsent] = useState(false);
 
   useEffect(() => {
     const checkPWA = () => {
@@ -21,6 +23,20 @@ export default function Home() {
     checkPWA();
     window.matchMedia('(display-mode: standalone)').addEventListener('change', checkPWA);
     return () => window.matchMedia('(display-mode: standalone)').removeEventListener('change', checkPWA);
+  }, []);
+
+  useEffect(() => {
+    // Check cookie consent
+    const consent = localStorage.getItem("cookie-consent");
+    setHasCookieConsent(consent === "accepted");
+
+    // Check location permission
+    if (typeof navigator !== "undefined" && navigator.permissions) {
+      navigator.permissions.query({ name: "geolocation" as PermissionName }).then(status => {
+        setHasLocationAccess(status.state === "granted");
+        status.onchange = () => setHasLocationAccess(status.state === "granted");
+      });
+    }
   }, []);
 
   // Fetch Top Clinics
@@ -53,8 +69,16 @@ export default function Home() {
         <section className={`container mx-auto px-4 ${isPWA ? 'py-10' : 'py-20'}`}>
           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
             <div>
-              <h2 className="text-3xl font-heading font-bold text-foreground mb-2">Top Rated</h2>
-              <p className="text-muted-foreground">Highly recommended labs and clinics based on patient reviews.</p>
+              <h2 className="text-3xl font-heading font-bold text-foreground mb-2">
+                {hasLocationAccess ? "Clinics close to you" : hasCookieConsent ? "Clinics recommended to you" : "Top Rated"}
+              </h2>
+              <p className="text-muted-foreground">
+                {hasLocationAccess
+                  ? "Discover nearby labs and clinics based on your location."
+                  : hasCookieConsent
+                    ? "Personalized clinic recommendations based on your preferences."
+                    : "Highly recommended labs and clinics based on patient reviews."}
+              </p>
             </div>
             <Link href="/find-lab">
               <Button variant="ghost" className="text-primary hover:text-primary/80 hover:bg-primary/5 self-start md:self-end">
