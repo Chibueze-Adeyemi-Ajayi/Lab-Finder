@@ -167,13 +167,13 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
 
         {lat && lng ? (
           <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`} className="flex-1">
-            <Button className="w-full h-8 md:h-10 group/btn flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 rounded-lg">
+            <Button className="w-full h-8 md:h-10 group/btn flex items-center justify-center md:gap-2 px-2 md:px-4 rounded-lg">
               <span className="text-xs md:text-sm font-semibold whitespace-nowrap">Direction</span>
               <Target className="w-3.5 h-3.5 md:w-4 md:h-4 transform group-hover/btn:translate-x-0.5 transition-transform hidden md:block" />
             </Button>
           </Link>
         ) : !phoneNumber && (
-          <Button className="flex-1 h-8 md:h-10 group/btn flex items-center justify-center gap-2 rounded-lg" disabled>
+          <Button className="flex-1 h-8 md:h-10 group/btn flex items-center justify-center md:gap-2 rounded-lg" disabled>
             <span className="text-xs md:text-sm">No Location</span>
             <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-50 hidden md:block" />
           </Button>
