@@ -169,8 +169,8 @@ export default function FindLab() {
         q: debouncedSearch,
         location: debouncedLocation,
         radius: selectedDistance,
-        user_lat: userLat ? parseFloat(userLat) : undefined,
-        user_lng: userLng ? parseFloat(userLng) : undefined,
+        lat: userLat ? parseFloat(userLat) : undefined,
+        lng: userLng ? parseFloat(userLng) : undefined,
         skip,
         limit: ITEMS_PER_PAGE
       });

@@ -82,6 +82,8 @@ export default function Home() {
       if (userCoords) {
         params.user_lat = userCoords.user_lat;
         params.user_lng = userCoords.user_lng;
+        params.lat = userCoords.user_lat;
+        params.lng = userCoords.user_lng;
         params.radius = 20; // Default radius for home page
       }
 
