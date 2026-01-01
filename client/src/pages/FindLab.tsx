@@ -62,6 +62,11 @@ export default function FindLab() {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
   // Booking Form State
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
@@ -433,7 +438,6 @@ export default function FindLab() {
                   size="sm"
                   onClick={() => {
                     setCurrentPage(prev => Math.max(1, prev - 1));
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={currentPage === 1 || isFetching}
                   className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
@@ -466,7 +470,6 @@ export default function FindLab() {
                           size="sm"
                           onClick={() => {
                             setCurrentPage(pageNum);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
                           disabled={isFetching}
                           className="w-8 h-8 sm:w-10 sm:h-10 p-0 text-xs sm:text-sm flex"
@@ -483,7 +486,6 @@ export default function FindLab() {
                   size="sm"
                   onClick={() => {
                     setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={currentPage === totalPages || isFetching}
                   className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
