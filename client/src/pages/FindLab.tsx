@@ -214,7 +214,7 @@ export default function FindLab() {
   };
 
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen bg-background font-sans overflow-x-hidden">
       <Header />
       <main className="pt-24 pb-20">
         {/* Search Header */}
@@ -335,12 +335,14 @@ export default function FindLab() {
 
             {/* Address Indication */}
             {userLat && userLng && (
-              <div className="mt-4 flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-in fade-in slide-in-from-top-1">
-                <div className="flex items-center text-sm text-emerald-700">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Showing labs around: <span className="font-bold ml-1">{addressDisplay || "Loading address..."}</span>
+              <div className="mt-4 flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-in fade-in slide-in-from-top-1 overflow-hidden">
+                <div className="flex items-center text-sm text-emerald-700 min-w-0">
+                  <MapPin className="w-4 h-4 mr-2 shrink-0" />
+                  <span className="truncate">
+                    Showing labs around: <span className="font-bold ml-1">{addressDisplay || "Loading address..."}</span>
+                  </span>
                 </div>
-                <button onClick={handleClearProximity} className="text-emerald-600 hover:text-emerald-800">
+                <button onClick={handleClearProximity} className="text-emerald-600 hover:text-emerald-800 ml-2 shrink-0">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -357,24 +359,24 @@ export default function FindLab() {
             </div>
           )}
 
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="text-sm font-semibold text-foreground">
-                {isLoading ? "Searching initial labs..." : (userLat && userLng ? `Found ${clinics.length} labs within ${selectedDistance}km` : `Found ${clinics.length} labs`)}
+          <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="text-sm font-semibold text-foreground truncate">
+                {isLoading ? "Searching labs..." : (userLat && userLng ? `${clinics.length} labs within ${selectedDistance}km` : `${clinics.length} labs found`)}
               </div>
               {isFetching && !isLoading && (
-                <div className="flex items-center gap-2 px-2 py-0.5 bg-primary/5 text-primary rounded-full text-[10px] font-bold animate-pulse">
+                <div className="flex items-center gap-2 px-2 py-0.5 bg-primary/5 text-primary rounded-full text-[10px] font-bold animate-pulse shrink-0">
                   <Loader2 className="w-3 h-3 animate-spin" />
                   UPDATING
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 self-end sm:self-auto">
               <Button
                 variant={viewMode === "list" ? "default" : "secondary"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="gap-2"
+                className="gap-2 h-9"
               >
                 <List className="w-4 h-4" />
                 List
@@ -383,7 +385,7 @@ export default function FindLab() {
                 variant={viewMode === "map" ? "default" : "secondary"}
                 size="sm"
                 onClick={() => setViewMode("map")}
-                className="gap-2"
+                className="gap-2 h-9"
               >
                 <Map className="w-4 h-4" />
                 Map
@@ -401,7 +403,7 @@ export default function FindLab() {
               ))}
             </div>
           ) : viewMode === "list" ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {clinics.map((clinic: any) => (
                 <ClinicCard key={clinic.id || clinic._id || Math.random()} clinic={clinic} />
               ))}

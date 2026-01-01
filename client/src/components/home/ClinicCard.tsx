@@ -162,7 +162,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
           </h3>
           <div className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-sm mt-0.5">
             <MapPin className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 flex-shrink-0 hidden md:block" />
-            <span className="line-clamp-1">{location}</span>
+            <span className="line-clamp-1 truncate flex-1">{location}</span>
           </div>
         </CardHeader>
 
@@ -200,7 +200,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
         {lat && lng ? (
           <Link href={`/map-navigation?lat=${lat}&lng=${lng}&name=${encodeURIComponent(clinic.name)}`} className="flex-1">
             <Button className="w-full h-8 md:h-10 group/btn flex items-center justify-center md:gap-2 px-2 md:px-4 rounded-lg">
-              <span className="text-xs md:text-sm font-semibold whitespace-nowrap">Direction</span>
+              <span className="text-xs md:text-sm font-semibold truncate">Direction</span>
               <Target className="w-3.5 h-3.5 md:w-4 md:h-4 transform group-hover/btn:translate-x-0.5 transition-transform hidden md:block" />
             </Button>
           </Link>
