@@ -1,4 +1,4 @@
-import { Search, MapPin, Zap, Navigation, X, Loader2 } from "lucide-react";
+import { Search, MapPin, Zap, Navigation, X, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -306,6 +306,13 @@ export function Hero() {
                     {term}
                   </button>
                 ))}
+                <button
+                  onClick={() => setLocation("/ai")}
+                  className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-sm cursor-pointer flex items-center gap-1.5 font-bold shadow-sm"
+                >
+                  <Sparkles className="w-3.5 h-3.5 fill-current" />
+                  <span>BRAIN (AI MODE)</span>
+                </button>
               </div>
             </motion.div>
           </div>

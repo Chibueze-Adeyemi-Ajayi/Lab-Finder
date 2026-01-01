@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Beaker, Search, MapPin, Calendar, Menu, ArrowLeft } from "lucide-react";
+import { Beaker, Search, MapPin, Calendar, Menu, ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
@@ -29,6 +29,12 @@ export function Header() {
     <>
       <Link href="/find-lab">
         <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">Find a Lab</span>
+      </Link>
+      <Link href="/ai">
+        <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
+          <Sparkles className="w-3.5 h-3.5" />
+          BRAIN
+        </span>
       </Link>
       <Link href="/for-clinics">
         <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer">For Clinics</span>
@@ -70,6 +76,12 @@ export function Header() {
             <Link href="/find-lab">
               <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">Find a Lab</span>
             </Link>
+            <Link href="/ai">
+              <span className="text-primary hover:text-primary/80 cursor-pointer transition-colors font-bold flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 fill-current" />
+                BRAIN
+              </span>
+            </Link>
             <Link href="/for-clinics">
               <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium">For Clinics</span>
             </Link>
@@ -102,6 +114,12 @@ export function Header() {
                 <div className="flex flex-col gap-4 space-y-2">
                   <Link href="/find-lab" onClick={() => setIsOpen(false)}>
                     <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">Find a Lab</span>
+                  </Link>
+                  <Link href="/ai" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-bold text-primary hover:text-primary/80 transition-colors cursor-pointer flex items-center gap-2 py-3">
+                      <Sparkles className="w-5 h-5 fill-current" />
+                      BRAIN AI
+                    </span>
                   </Link>
                   <Link href="/for-clinics" onClick={() => setIsOpen(false)}>
                     <span className="text-base font-semibold text-foreground hover:text-primary transition-colors cursor-pointer block py-3">For Clinics</span>

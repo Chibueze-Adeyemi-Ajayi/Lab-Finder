@@ -79,9 +79,9 @@ export function ClinicCard({ clinic }: { clinic: ClinicProps }) {
 
     if (isNaN(numericDist)) return null;
 
-    if (numericDist < 5) return "Near";
-    if (numericDist < 10) return "Fairly far";
-    if (numericDist < 20) return "Moderate";
+    if (numericDist <= 5) return "Near";
+    if (numericDist <= 10) return "Moderate";
+    if (numericDist <= 20) return "Fairly far";
     return "Far";
   };
 

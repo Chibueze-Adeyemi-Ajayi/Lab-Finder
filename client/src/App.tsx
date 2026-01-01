@@ -18,12 +18,14 @@ import Terms from "@/pages/Terms";
 
 import Contact from "@/pages/Contact";
 import ClinicDetails from "@/pages/ClinicDetails";
+import AiMode from "@/pages/AiMode";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/find-lab" component={FindLab} />
+      <Route path="/ai" component={AiMode} />
       <Route path="/clinic/:id" component={ClinicDetails} />
       <Route path="/for-clinics" component={ClinicSignup} />
       <Route path="/signin" component={SignIn} />
