@@ -39,7 +39,7 @@ export default function AiMode() {
                 </button>
                 <div className="flex items-center gap-2 pr-8">
                     <GeminiIcon className="w-7 h-7" fillColor="hsl(var(--primary))" />
-                    <span className="font-heading font-black text-xl tracking-tighter text-primary">BRAIN</span>
+                    <span className="font-heading font-black text-xl tracking-tighter text-primary">Brain</span>
                 </div>
                 <div className="w-6" /> {/* Spacer */}
             </nav>
