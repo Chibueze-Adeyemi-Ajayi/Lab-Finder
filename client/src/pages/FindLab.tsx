@@ -439,7 +439,7 @@ export default function FindLab() {
                   className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span className="hidden xs:inline">Previous</span>
+                  <span className="hidden sm:inline">Previous</span>
                 </Button>
 
                 <div className="flex items-center gap-1">
@@ -452,7 +452,7 @@ export default function FindLab() {
                     })
                     .map((pageNum, idx, arr) => (
                       <div key={pageNum} className="flex items-center gap-1">
-                        {idx > 0 && arr[idx - 1] !== pageNum - 1 && <span className="text-muted-foreground">...</span>}
+                        {idx > 0 && arr[idx - 1] !== pageNum - 1 && <span className="text-muted-foreground text-xs">...</span>}
                         <Button
                           variant={currentPage === pageNum ? "default" : "outline"}
                           size="sm"
@@ -461,7 +461,7 @@ export default function FindLab() {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
                           disabled={isFetching}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 p-0 ${currentPage !== pageNum ? 'hidden xs:flex' : 'flex'}`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 p-0 text-xs sm:text-sm ${currentPage !== pageNum ? 'hidden sm:flex' : 'flex'}`}
                         >
                           {pageNum}
                         </Button>
@@ -480,7 +480,7 @@ export default function FindLab() {
                   disabled={currentPage === totalPages || isFetching}
                   className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
                 >
-                  <span className="hidden xs:inline">Next</span>
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
