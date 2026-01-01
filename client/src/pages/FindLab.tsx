@@ -403,7 +403,7 @@ export default function FindLab() {
               ))}
             </div>
           ) : viewMode === "list" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
               {clinics.map((clinic: any) => (
                 <ClinicCard key={clinic.id || clinic._id || Math.random()} clinic={clinic} />
               ))}
@@ -427,7 +427,7 @@ export default function FindLab() {
               <div className="text-sm text-muted-foreground">
                 Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} labs
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -436,41 +436,38 @@ export default function FindLab() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={currentPage === 1 || isFetching}
-                  className="gap-2"
+                  className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  <span className="hidden xs:inline">Previous</span>
                 </Button>
 
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={currentPage === pageNum ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          setCurrentPage(pageNum);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        disabled={isFetching}
-                        className="w-10 h-10 p-0"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
+                  {/* Show fewer buttons on mobile */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(pageNum => {
+                      if (totalPages <= 5) return true;
+                      if (pageNum === 1 || pageNum === totalPages || pageNum === currentPage) return true;
+                      return Math.abs(pageNum - currentPage) <= (window.innerWidth < 640 ? 0 : 1);
+                    })
+                    .map((pageNum, idx, arr) => (
+                      <div key={pageNum} className="flex items-center gap-1">
+                        {idx > 0 && arr[idx - 1] !== pageNum - 1 && <span className="text-muted-foreground">...</span>}
+                        <Button
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setCurrentPage(pageNum);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          disabled={isFetching}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 p-0 ${currentPage !== pageNum ? 'hidden xs:flex' : 'flex'}`}
+                        >
+                          {pageNum}
+                        </Button>
+                      </div>
+                    ))
+                  }
                 </div>
 
                 <Button
@@ -481,9 +478,9 @@ export default function FindLab() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={currentPage === totalPages || isFetching}
-                  className="gap-2"
+                  className="h-9 px-2 sm:px-3 gap-1 sm:gap-2"
                 >
-                  Next
+                  <span className="hidden xs:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
