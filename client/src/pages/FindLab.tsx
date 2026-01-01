@@ -443,16 +443,24 @@ export default function FindLab() {
                 </Button>
 
                 <div className="flex items-center gap-1">
-                  {/* Show fewer buttons on mobile */}
+                  {/* Show exactly 3 buttons on mobile, more on desktop */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(pageNum => {
+                      if (window.innerWidth < 640) {
+                        // On mobile, show at most 3 pages around current
+                        if (totalPages <= 3) return true;
+                        if (currentPage === 1) return pageNum <= 3;
+                        if (currentPage === totalPages) return pageNum >= totalPages - 2;
+                        return Math.abs(pageNum - currentPage) <= 1;
+                      }
+                      // Desktop logic: first, last, current, and neighbors
                       if (totalPages <= 5) return true;
                       if (pageNum === 1 || pageNum === totalPages || pageNum === currentPage) return true;
-                      return Math.abs(pageNum - currentPage) <= (window.innerWidth < 640 ? 0 : 1);
+                      return Math.abs(pageNum - currentPage) <= 1;
                     })
                     .map((pageNum, idx, arr) => (
                       <div key={pageNum} className="flex items-center gap-1">
-                        {idx > 0 && arr[idx - 1] !== pageNum - 1 && <span className="text-muted-foreground text-xs">...</span>}
+                        {window.innerWidth >= 640 && idx > 0 && arr[idx - 1] !== pageNum - 1 && <span className="text-muted-foreground text-xs">...</span>}
                         <Button
                           variant={currentPage === pageNum ? "default" : "outline"}
                           size="sm"
@@ -461,7 +469,7 @@ export default function FindLab() {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
                           disabled={isFetching}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 p-0 text-xs sm:text-sm ${currentPage !== pageNum ? 'hidden sm:flex' : 'flex'}`}
+                          className="w-8 h-8 sm:w-10 sm:h-10 p-0 text-xs sm:text-sm flex"
                         >
                           {pageNum}
                         </Button>
