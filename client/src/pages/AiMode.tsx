@@ -39,7 +39,7 @@ export default function AiMode() {
                 </button>
                 <div className="flex items-center gap-2 pr-8">
                     <GeminiIcon className="w-7 h-7" fillColor="hsl(var(--primary))" />
-                    <span className="font-heading font-extrabold text-xl tracking-tighter text-primary italic">BRAIN</span>
+                    <span className="font-heading font-black text-xl tracking-tighter text-primary">BRAIN</span>
                 </div>
                 <div className="w-6" /> {/* Spacer */}
             </nav>
@@ -94,13 +94,6 @@ export default function AiMode() {
                     </motion.div>
                 </motion.div>
             </main>
-
-            {/* Footer */}
-            <footer className="p-8 text-center border-t border-border/40 bg-secondary/10">
-                <p className="text-sm font-medium text-muted-foreground uppercase tracking-[0.2em]">
-                    powered by <span className="text-foreground font-bold font-heading italic">Jilo Innovations</span>
-                </p>
-            </footer>
         </div>
     );
 }

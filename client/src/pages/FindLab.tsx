@@ -447,15 +447,15 @@ export default function FindLab() {
                 </Button>
 
                 <div className="flex items-center gap-1">
-                  {/* Show exactly 3 buttons on mobile, more on desktop */}
+                  {/* Show exactly 5 buttons on mobile (if available) */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(pageNum => {
                       if (window.innerWidth < 640) {
-                        // On mobile, show at most 3 pages around current
-                        if (totalPages <= 3) return true;
-                        if (currentPage === 1) return pageNum <= 3;
-                        if (currentPage === totalPages) return pageNum >= totalPages - 2;
-                        return Math.abs(pageNum - currentPage) <= 1;
+                        // On mobile, show at most 5 pages around current
+                        if (totalPages <= 5) return true;
+                        if (currentPage <= 3) return pageNum <= 5;
+                        if (currentPage >= totalPages - 2) return pageNum >= totalPages - 4;
+                        return Math.abs(pageNum - currentPage) <= 2;
                       }
                       // Desktop logic: first, last, current, and neighbors
                       if (totalPages <= 5) return true;
