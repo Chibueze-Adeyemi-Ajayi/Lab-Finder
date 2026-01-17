@@ -20,7 +20,19 @@ import Contact from "@/pages/Contact";
 import ClinicDetails from "@/pages/ClinicDetails";
 import AiMode from "@/pages/AiMode";
 
+import Maintenance from "@/pages/Maintenance";
+
+const MAINTENANCE_MODE = true; // Toggle this to enable/disable maintenance mode
+
 function Router() {
+  if (MAINTENANCE_MODE) {
+    return (
+      <Switch>
+        <Route component={Maintenance} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -47,6 +59,17 @@ import { PWAInstallPrompt } from "@/components/layout/PWAInstallPrompt";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
 function App() {
+  if (MAINTENANCE_MODE) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Maintenance />
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
